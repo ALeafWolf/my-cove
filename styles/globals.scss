@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*Typography*/
+body {
+    font-size: 16px;
+}
+h1 {
+    font-size: 2.5rem;
+    font-weight: 500;
+}
+h2 {
+    font-size: 2rem;
+    font-weight: 500;
+}
+h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+h4 {
+    font-size: 1.5rem;
+}
+h5 {
+    font-size: 1rem;
+    font-weight: 500;
+}
+h6 {
+    font-size: 1rem;
+}
+
+.content-container {
+    max-width: 768px;
+    min-height: 100vh;
+    width: 100%;
+    padding: 30px;
+    border: 1px solid #0000007e;
+}
+
+.img-cover {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.post-card-img-container {
+    aspect-ratio: 1.5/1;
+}
