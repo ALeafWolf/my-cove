@@ -19,32 +19,36 @@ const Home: NextPage<Props> = ({ posts }) => {
         <p>屯放各种脑洞之地</p>
       </div>
       <div className="grid md:grid-cols-3 grid-cols-2 gap-4 shadow-md p-4">
-        {posts.map((post) => (
-          <Link
-            key={post.id}
-            href={`/post/${post.id}`}
-            className="block shadow-md hover:shadow-lg"
-          >
-            <div className="post-card-img-container">
-              {post.attributes.thumbnail.data && (
-                <img
-                  className="img-cover"
-                  src={post.attributes.thumbnail.data.attributes.url}
-                  alt={post.attributes.title}
-                />
-              )}
-            </div>
-            <div className="p-2">
-              <h4>{post.attributes.title}</h4>
-              <p>{post.attributes.summary}</p>
-              <div>
-                <p className="text-gray-500 text-right">
-                  {isoToDate(post.attributes.createdAt)}
-                </p>
+        {posts ? (
+          posts.map((post) => (
+            <Link
+              key={post.id}
+              href={`/post/${post.id}`}
+              className="block shadow-md hover:shadow-lg"
+            >
+              <div className="post-card-img-container">
+                {post.attributes.thumbnail.data && (
+                  <img
+                    className="img-cover"
+                    src={post.attributes.thumbnail.data.attributes.url}
+                    alt={post.attributes.title}
+                  />
+                )}
               </div>
-            </div>
-          </Link>
-        ))}
+              <div className="p-2">
+                <h4>{post.attributes.title}</h4>
+                <p>{post.attributes.summary}</p>
+                <div>
+                  <p className="text-gray-500 text-right">
+                    {isoToDate(post.attributes.createdAt)}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <div>qaq</div>
+        )}
       </div>
     </div>
   );
