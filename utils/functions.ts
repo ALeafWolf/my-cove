@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const get = async (endpoint: string, params: object = {}) => {
-  return await axios.get(`${process.env.API_URI}${endpoint}`, params);
+  return await axios.get(`${process.env.API_URL}/api${endpoint}`, params);
 };
 
 const isoToDate = (iso: string) => {

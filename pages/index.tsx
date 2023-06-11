@@ -26,17 +26,21 @@ const Home: NextPage<Props> = ({ posts }) => {
             className="block shadow-md hover:shadow-lg"
           >
             <div className="post-card-img-container">
-              <img
-                className="img-cover"
-                src={post.attributes.thumbnail.data.attributes.url}
-                alt={post.attributes.title}
-              />
+              {post.attributes.thumbnail.data && (
+                <img
+                  className="img-cover"
+                  src={post.attributes.thumbnail.data.attributes.url}
+                  alt={post.attributes.title}
+                />
+              )}
             </div>
             <div className="p-2">
               <h4>{post.attributes.title}</h4>
               <p>{post.attributes.summary}</p>
               <div>
-                <p className="text-gray-500 text-right">{isoToDate(post.attributes.createdAt)}</p>
+                <p className="text-gray-500 text-right">
+                  {isoToDate(post.attributes.createdAt)}
+                </p>
               </div>
             </div>
           </Link>
