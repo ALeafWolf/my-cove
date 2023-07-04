@@ -1,7 +1,8 @@
 import { NextPage } from "next";
 import { GetServerSideProps } from "next";
+import Image from "next/image";
 import { Post } from "@/utils/types";
-import { get, isoToDate } from "@/utils/functions";
+import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
 import Link from "next/link";
 import Head from "next/head";
 interface Props {
@@ -14,24 +15,26 @@ const Home: NextPage<Props> = ({ posts }) => {
       <Head>
         <title>My Cove</title>
       </Head>
-      <div className="flex justify-center items-center flex-col shadow-md mb-4 p-4">
+      <div className="flex justify-center items-center flex-col mb-4 p-4">
         <h1>My Cove</h1>
         <p>屯放各种脑洞之地</p>
       </div>
-      <div className="grid md:grid-cols-3 grid-cols-2 gap-4 shadow-md p-4">
+      <div className="grid md:grid-cols-3 grid-cols-2 gap-4 p-4">
         {posts ? (
           posts.map((post) => (
             <Link
               key={post.id}
               href={`/post/${post.id}`}
-              className="block shadow-md hover:shadow-lg"
+              className="block"
             >
               <div className="post-card-img-container">
-                {post.attributes.thumbnail.data && (
-                  <img
+                {getPostThumbnailUrl(post) && (
+                  <Image
                     className="img-cover"
-                    src={post.attributes.thumbnail.data.attributes.url}
+                    src={getPostThumbnailUrl(post) || ''}
                     alt={post.attributes.title}
+                    width={400}
+                    height={300}
                   />
                 )}
               </div>
@@ -67,6 +70,14 @@ export const getServerSideProps: GetServerSideProps = async () => {
         tags: {
           fields: "name",
         },
+        collection: {
+          fields: "name",
+          populate: {
+            header_image: {
+              fields: "url",
+            }
+          }
+        }
       },
       sort: ["id:desc"],
     },

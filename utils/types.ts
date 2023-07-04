@@ -12,20 +12,43 @@ type PostAttributes = {
     };
   };
   categories: {
-    data: {
-      attributes: GroupAttributes;
-    };
+    data: [
+      {
+        id: number;
+        attributes: GroupAttributes;
+      }
+    ];
   };
   tags: {
+    data: [
+      {
+        id: number;
+        attributes: GroupAttributes;
+      }
+    ];
+  };
+  collection: {
     data: {
-      attributes: GroupAttributes;
+      id: number;
+      attributes: CollectionAttributes;
     };
   };
   createdAt: string;
+  updatedAt: string;
 };
 type ImageAttributes = {
   url: string;
 };
 type GroupAttributes = {
   name: string;
+};
+type CollectionAttributes = {
+  name: string;
+  summary: string;
+  header_image: {
+    data: {
+      attributes: ImageAttributes;
+    };
+  };
+  publishedAt: string;
 };
