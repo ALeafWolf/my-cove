@@ -1,28 +1,40 @@
 import { GetServerSideProps } from "next";
 import { NextPage } from "next";
 import Image from "next/image";
-import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
-import { Post } from "@/utils/types";
+import Head from "next/head";
+import { useState } from "react";
+
 import { remark } from "remark";
 import html from "remark-html";
-import Head from "next/head";
+// icons
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faList, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+
+import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
+import { Post, Collection } from "@/utils/types";
+import Popup from "@/components/PopupCollectionList";
 
 interface Props {
   post: Post;
   content: string;
   headerImg: string;
-  collection: object;
+  collection: Collection;
 }
 
 const Post: NextPage<Props> = ({ post, content, headerImg, collection }) => {
-  const title = `${post.attributes.title} | My Cove`
+  const title = `${post.attributes.title} | My Cove`;
+  const [showCollection, setShowCollection] = useState(false);
+
   return (
-    <div>
+    <div className="relative">
       <Head>
         <title>{title}</title>
       </Head>
       <button className="px-4 py-2 border" onClick={() => history.back()}>
-        返回
+        <span>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          返回
+        </span>
       </button>
       <div className="p-6 mb-6">
         {headerImg && (
@@ -48,6 +60,22 @@ const Post: NextPage<Props> = ({ post, content, headerImg, collection }) => {
         className="post-content"
         dangerouslySetInnerHTML={{ __html: content }}
       ></div>
+      {collection && (
+        <div className="flex justify-between my-6">
+          <div>Before</div>
+          <button onClick={() => setShowCollection(true)}>
+            <FontAwesomeIcon icon={faList} size="xl"/>
+          </button>
+          <div>After</div>
+        </div>
+      )}
+      {showCollection && (
+        <Popup
+          collection={collection}
+          setPopup={setShowCollection}
+          currentPostId={post.id}
+        />
+      )}
       <div className="flex flex-col gap-3 py-4 mt-6">
         <div>
           分类：
@@ -92,6 +120,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             header_image: {
               fields: "url",
             },
+            posts: {
+              fields: "*",
+            },
           },
         },
       },
@@ -102,9 +133,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     .process(data.data.attributes.content);
   const content = processedContent.toString();
   const post = data.data;
+  const collection: Collection = post.attributes.collection.data;
   // defense code for no thumbnail
-  const thumbnail = post.attributes.thumbnail.data;
-  const collection = post.attributes.collection.data;
   let headerImg = getPostThumbnailUrl(post);
   return {
     props: {

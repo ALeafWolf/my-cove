@@ -2,6 +2,10 @@ export type Post = {
   id: number;
   attributes: PostAttributes;
 };
+export type Collection = {
+  id: number;
+  attributes: CollectionAttributes;
+};
 type PostAttributes = {
   title: string;
   content: string;
@@ -28,10 +32,7 @@ type PostAttributes = {
     ];
   };
   collection: {
-    data: {
-      id: number;
-      attributes: CollectionAttributes;
-    };
+    data: Collection;
   };
   createdAt: string;
   updatedAt: string;
@@ -43,7 +44,7 @@ type GroupAttributes = {
   name: string;
 };
 type CollectionAttributes = {
-  name: string;
+  title: string;
   summary: string;
   header_image: {
     data: {
@@ -51,4 +52,12 @@ type CollectionAttributes = {
     };
   };
   publishedAt: string;
+  posts: {
+    data: [
+      {
+        id: number;
+        attributes: PostAttributes;
+      }
+    ];
+  };
 };

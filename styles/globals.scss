@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+ol{
+    list-style: decimal;
+}
+ul{
+    list-style: disc;
+}
+ol, ul{
+    padding-left: 1.5rem;
+}
 /*Typography*/
 body {
     font-size: 16px;
@@ -46,4 +55,14 @@ h6 {
 
 .post-card-img-container {
     aspect-ratio: 1.5/1;
+}
+.collection-popup{
+    position: fixed;
+    max-height: 700px;
+    height: 80%;
+    max-width: 500px;
+    width: 90%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
