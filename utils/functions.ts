@@ -22,4 +22,16 @@ const getPostThumbnailUrl = (post: Post) => {
   return headerImg;
 }
 
-export { get, isoToDate, getPostThumbnailUrl };
+const getPrevAndNextPost = (posts: Post[], currentPostId: number) => {
+  let prevPost = null, nextPost = null;
+  const currentPostIndex = posts.findIndex(post => post.id === currentPostId);
+  if (currentPostIndex > 0) {
+    prevPost = posts[currentPostIndex - 1];
+  }
+  if (currentPostIndex < posts.length - 1) {
+    nextPost = posts[currentPostIndex + 1];
+  }
+  return { prevPost, nextPost };
+}
+
+export { get, isoToDate, getPostThumbnailUrl, getPrevAndNextPost };

@@ -10,19 +10,34 @@ import html from "remark-html";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
-import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
+import {
+  get,
+  isoToDate,
+  getPostThumbnailUrl,
+  getPrevAndNextPost,
+} from "@/utils/functions";
 import { Post, Collection } from "@/utils/types";
 import Popup from "@/components/PopupCollectionList";
+import next from "next/types";
 
 interface Props {
   post: Post;
+  prevPost: Post;
+  nextPost: Post;
   content: string;
   headerImg: string;
   collection: Collection;
 }
 
-const Post: NextPage<Props> = ({ post, content, headerImg, collection }) => {
-  const title = `${post.attributes.title} | My Cove`;
+const Post: NextPage<Props> = ({
+  post,
+  prevPost,
+  nextPost,
+  content,
+  headerImg,
+  collection,
+}) => {
+  const title = `${post.attributes.title || "404"} | My Cove`;
   const [showCollection, setShowCollection] = useState(false);
 
   return (
@@ -36,65 +51,107 @@ const Post: NextPage<Props> = ({ post, content, headerImg, collection }) => {
           返回
         </span>
       </button>
-      <div className="p-6 mb-6">
-        {headerImg && (
-          <Image
-            className="img-cover"
-            src={headerImg}
-            alt={post.attributes.title}
-            width={800}
-            height={500}
-          />
-        )}
-        <h1 className="text-center">{post.attributes.title}</h1>
-        <div className="flex justify-around">
-          <p className="text-gray-100 text-right">
-            创建：{isoToDate(post.attributes.createdAt)}
-          </p>
-          <p className="text-gray-100 text-right">
-            更新：{isoToDate(post.attributes.updatedAt)}
-          </p>
-        </div>
-      </div>
-      <div
-        className="post-content"
-        dangerouslySetInnerHTML={{ __html: content }}
-      ></div>
-      {collection && (
-        <div className="flex justify-between my-6">
-          <div>Before</div>
-          <button onClick={() => setShowCollection(true)}>
-            <FontAwesomeIcon icon={faList} size="xl"/>
-          </button>
-          <div>After</div>
+      {post && (
+        <div>
+          <div className="p-6 mb-6">
+            {headerImg && (
+              <Image
+                className="img-cover"
+                src={headerImg}
+                alt={post.attributes.title}
+                width={800}
+                height={500}
+              />
+            )}
+            <h1 className="text-center">{post.attributes.title}</h1>
+            <div className="flex justify-around">
+              <p className="text-gray-100 text-right">
+                创建：{isoToDate(post.attributes.createdAt)}
+              </p>
+              <p className="text-gray-100 text-right">
+                更新：{isoToDate(post.attributes.updatedAt)}
+              </p>
+            </div>
+          </div>
+          {collection && (
+            <div className="w-full grid md:grid-cols-3 grid-cols-1 my-6 gap-4">
+              {prevPost ? (
+                <a
+                  className="inline-flex justify-center border rounded-md p-2"
+                  href={`/post/${prevPost.id}`}
+                >
+                  <span>上一篇：</span>
+                  <span>{prevPost.attributes.title}</span>
+                </a>
+              ) : (
+                <div className="text-center p-2">到头了！=￣ω￣=</div>
+              )}
+
+              <button
+                className="inline-flex gap-2 border rounded-md p-2 items-center justify-center bg-white"
+                onClick={() => setShowCollection(true)}
+              >
+                <FontAwesomeIcon icon={faList} size="lg" color="#2b2a37" />
+                <span className="text-[#2b2a37]">
+                  {collection.attributes.title}
+                </span>
+              </button>
+              {nextPost ? (
+                <a
+                  className="inline-flex justify-center border rounded-md p-2"
+                  href={`/post/${nextPost.id}`}
+                >
+                  <span>下一篇：</span>
+                  <span>{nextPost.attributes.title}</span>
+                </a>
+              ) : (
+                <div className="text-center p-2">没有了~┑(￣Д ￣)┍</div>
+              )}
+            </div>
+          )}
+          {showCollection && (
+            <div>
+              <Popup
+                collection={collection}
+                setPopup={setShowCollection}
+                currentPostId={post.id}
+              />
+              <div
+                className="popup-mask"
+                onClick={() => setShowCollection(false)}
+              ></div>
+            </div>
+          )}
+          <div
+            className="post-content"
+            dangerouslySetInnerHTML={{ __html: content }}
+          ></div>
         </div>
       )}
-      {showCollection && (
-        <Popup
-          collection={collection}
-          setPopup={setShowCollection}
-          currentPostId={post.id}
-        />
-      )}
+
       <div className="flex flex-col gap-3 py-4 mt-6">
-        <div>
-          分类：
-          {post.attributes.categories.data.map((category) => (
-            <span
-              className="px-2 py-1 mx-2 border rounded-md"
-              key={category.id}
-            >
-              {category.attributes.name}
-            </span>
-          ))}
+        <div className="flex gap-2">
+          <div className="min-w-max">分类：</div>
+          <div className="flex gap-2 flex-wrap">
+            {post.attributes.categories.data.map((category) => (
+              <a
+                className="block px-2 py-1 border rounded-md"
+                key={category.id}
+              >
+                {category.attributes.name}
+              </a>
+            ))}
+          </div>
         </div>
-        <div>
-          标签：
-          {post.attributes.tags.data.map((tag) => (
-            <span className="px-2 py-1 mx-2 border rounded-md" key={tag.id}>
-              {tag.attributes.name}
-            </span>
-          ))}
+        <div className="flex gap-2">
+          <div className="min-w-max">标签：</div>
+          <div className="flex gap-2 flex-wrap">
+            {post.attributes.tags.data.map((tag) => (
+              <a className="block px-2 py-1 border rounded-md" key={tag.id}>
+                {tag.attributes.name}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -134,11 +191,17 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const content = processedContent.toString();
   const post = data.data;
   const collection: Collection = post.attributes.collection.data;
+  const { prevPost, nextPost } = getPrevAndNextPost(
+    collection.attributes.posts.data,
+    post.id
+  );
   // defense code for no thumbnail
   let headerImg = getPostThumbnailUrl(post);
   return {
     props: {
       post,
+      prevPost,
+      nextPost,
       content,
       headerImg,
       collection,
