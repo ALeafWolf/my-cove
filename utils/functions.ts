@@ -20,11 +20,12 @@ const getPostThumbnailUrl = (post: Post) => {
     headerImg = collection.data.attributes.header_image.data.attributes.url;
   }
   return headerImg;
-}
+};
 
 const getPrevAndNextPost = (posts: Post[], currentPostId: number) => {
-  let prevPost = null, nextPost = null;
-  const currentPostIndex = posts.findIndex(post => post.id === currentPostId);
+  let prevPost = null,
+    nextPost = null;
+  const currentPostIndex = posts.findIndex((post) => post.id === currentPostId);
   if (currentPostIndex > 0) {
     prevPost = posts[currentPostIndex - 1];
   }
@@ -32,6 +33,21 @@ const getPrevAndNextPost = (posts: Post[], currentPostId: number) => {
     nextPost = posts[currentPostIndex + 1];
   }
   return { prevPost, nextPost };
-}
+};
 
-export { get, isoToDate, getPostThumbnailUrl, getPrevAndNextPost };
+const parseToSingleArray = (input: string[] | string | undefined) => {
+  if (typeof input === "string") {
+    return [input];
+  } else if (input === undefined) {
+    return null;
+  }
+  return input;
+};
+
+export {
+  get,
+  isoToDate,
+  getPostThumbnailUrl,
+  getPrevAndNextPost,
+  parseToSingleArray,
+};

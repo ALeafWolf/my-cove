@@ -18,7 +18,6 @@ import {
 } from "@/utils/functions";
 import { Post, Collection } from "@/utils/types";
 import Popup from "@/components/PopupCollectionList";
-import next from "next/types";
 
 interface Props {
   post: Post;
@@ -135,6 +134,7 @@ const Post: NextPage<Props> = ({
           <div className="flex gap-2 flex-wrap">
             {post.attributes.categories.data.map((category) => (
               <a
+                href={`/search?category=${category.attributes.name}`}
                 className="block px-2 py-1 border rounded-md"
                 key={category.id}
               >
@@ -147,7 +147,11 @@ const Post: NextPage<Props> = ({
           <div className="min-w-max">标签：</div>
           <div className="flex gap-2 flex-wrap">
             {post.attributes.tags.data.map((tag) => (
-              <a className="block px-2 py-1 border rounded-md" key={tag.id}>
+              <a
+                href={`/search?tag=${tag.attributes.name}`}
+                className="block px-2 py-1 border rounded-md"
+                key={tag.id}
+              >
                 {tag.attributes.name}
               </a>
             ))}
@@ -191,17 +195,23 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const content = processedContent.toString();
   const post = data.data;
   const collection: Collection = post.attributes.collection.data;
-  const { prevPost, nextPost } = getPrevAndNextPost(
-    collection.attributes.posts.data,
-    post.id
-  );
+  let prev = null,
+    next = null;
+  if (collection) {
+    const { prevPost, nextPost } = getPrevAndNextPost(
+      collection.attributes.posts.data,
+      post.id
+    );
+    prev = prevPost;
+    next = nextPost;
+  }
   // defense code for no thumbnail
   let headerImg = getPostThumbnailUrl(post);
   return {
     props: {
       post,
-      prevPost,
-      nextPost,
+      prevPost: prev,
+      nextPost: next,
       content,
       headerImg,
       collection,
