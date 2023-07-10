@@ -5,6 +5,7 @@ import { Post } from "@/utils/types";
 import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
 import Link from "next/link";
 import Head from "next/head";
+
 interface Props {
   posts: Post[];
 }
