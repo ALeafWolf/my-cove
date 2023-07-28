@@ -1,11 +1,17 @@
 import "@/styles/globals.scss";
 import type { AppProps } from "next/app";
 import Script from "next/script";
+import { SessionProvider } from "next-auth/react";
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps) {
   return (
     <>
-      <Component {...pageProps} />
+      <SessionProvider session={session}>
+        <Component {...pageProps} />
+      </SessionProvider>
       <Script
         async
         src="https://www.googletagmanager.com/gtag/js?id=G-470JV41HFX"

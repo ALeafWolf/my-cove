@@ -61,3 +61,12 @@ type CollectionAttributes = {
     ];
   };
 };
+
+export type AuthSesstion = {
+  user: {
+    email: string;
+  };
+  expires: string;
+  id: number;
+  jwt: string;
+};

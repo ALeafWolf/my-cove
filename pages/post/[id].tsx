@@ -3,6 +3,7 @@ import { NextPage } from "next";
 import Image from "next/image";
 import Head from "next/head";
 import { useState } from "react";
+import { getSession } from "next-auth/react";
 
 import { remark } from "remark";
 import html from "remark-html";
@@ -163,7 +164,20 @@ const Post: NextPage<Props> = ({
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const session = await getSession(ctx);
+  // Check if session exists or not, if not, redirect
+  if (session == null) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: true,
+      },
+    };
+  }
   const { data } = await get(`/posts/${ctx.params?.id}`, {
+    headers: {
+      Authorization: `Bearer ${session.jwt}`,
+    },
     params: {
       populate: {
         thumbnail: {
