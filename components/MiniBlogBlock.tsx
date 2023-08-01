@@ -3,6 +3,7 @@ import { MiniBlog } from "@/utils/types";
 import React from "react";
 import { isoToDate } from "@/utils/functions";
 import Image from "next/image";
+import Fancybox from "./Fancybox";
 
 interface Props {
   blog: MiniBlog;
@@ -27,28 +28,52 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
       <h5 className="text-xl">{blog.attributes.title}</h5>
       <p className="card-text">{blog.attributes.content}</p>
       {media?.length == 1 && (
-        <div className="h-[300px]">
-          <Image
-            className="img-fluid"
-            src={media[0].attributes.url}
-            alt={blog.attributes.title}
-            width={300}
-            height={300}
-          />
-        </div>
+        <Fancybox
+          options={{
+            Carousel: {
+              infinite: false,
+            },
+          }}
+          className="h-[300px]"
+        >
+          <a
+            data-fancybox={`gallery-${blog.id}`}
+            href={media[0].attributes.url}
+          >
+            <Image
+              className="img-fluid"
+              src={media[0].attributes.url}
+              alt={blog.attributes.title}
+              width={300}
+              height={300}
+            />
+          </a>
+        </Fancybox>
       )}
       {media?.length > 1 && (
-        <div className="grid grid-cols-3 gap-2">
+        <Fancybox
+          options={{
+            Carousel: {
+              infinite: false,
+            },
+          }}
+          className="grid grid-cols-3 gap-2"
+        >
           {media.map((m) => (
-            <div
+            <a
+              data-fancybox={`gallery-${blog.id}`}
               key={m.id}
-              className="aspect-square bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${m.attributes.url})`,
-              }}
-            ></div>
+              href={m.attributes.url}
+            >
+              <div
+                className="aspect-square bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${m.attributes.url})`,
+                }}
+              ></div>
+            </a>
           ))}
-        </div>
+        </Fancybox>
       )}
       {/* <Link href={`/miniblog/${blog.id}`}>
         <p className="btn btn-primary">Read More →</p>
