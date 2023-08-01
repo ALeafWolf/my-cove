@@ -62,11 +62,37 @@ type CollectionAttributes = {
   };
 };
 
-export type AuthSesstion = {
-  user: {
-    email: string;
-  };
-  expires: string;
+export type MiniBlog = {
   id: number;
-  jwt: string;
+  attributes: MiniBlogAttributes;
+};
+
+type MiniBlogAttributes = {
+  title: string;
+  content: string;
+  media: {
+    data: [
+      {
+        id: number;
+        attributes: ImageAttributes;
+      }
+    ];
+  };
+  createdAt: string;
+  updatedAt: string;
+  user: { data: User };
+};
+
+type User = {
+  id: number;
+  attributes: UserAttributes;
+};
+
+type UserAttributes = {
+  username: string;
+  thumbnail: {
+    data: {
+      attributes: ImageAttributes;
+    };
+  };
 };
