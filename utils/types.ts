@@ -96,3 +96,5 @@ type UserAttributes = {
     };
   };
 };
+
+export type InputType = 'text' | 'email' | 'password' | 'number' | 'textarea';

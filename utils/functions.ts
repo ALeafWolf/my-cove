@@ -1,8 +1,14 @@
 import axios from "axios";
 import { Post } from "./types";
 
-const get = async (endpoint: string, params: object = {}) => {
-  return await axios.get(`${process.env.API_URL}/api${endpoint}`, params);
+const apiUrl = process.env.API_URL || "https://cms.thezzzcove.com";
+
+const get = async (endpoint: string, params?: object) => {
+  return await axios.get(`${apiUrl}/api${endpoint}`, params);
+};
+
+const post = async (endpoint: string, data: object = {}, params?: object) => {
+  return await axios.post(`${apiUrl}/api${endpoint}`, data, params);
 };
 
 const isoToDate = (iso: string) => {
@@ -46,6 +52,7 @@ const parseToSingleArray = (input: string[] | string | undefined) => {
 
 export {
   get,
+  post,
   isoToDate,
   getPostThumbnailUrl,
   getPrevAndNextPost,

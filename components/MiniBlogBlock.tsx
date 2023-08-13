@@ -14,19 +14,23 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
   return (
     <div className="flex flex-col gap-2 border rounded-md p-4">
       <div className="flex justify-between">
-        <div className="flex items-center gap-2">
-          <div
-            className="flex gap-2 h-8 w-8 rounded-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${user.attributes.thumbnail.data.attributes.url})`,
-            }}
-          ></div>
-          <h6>{user.attributes.username}</h6>
-        </div>
+        {user && (
+          <div className="flex items-center gap-2">
+            <div
+              className="flex gap-2 h-8 w-8 rounded-full bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${user.attributes.thumbnail.data.attributes.url})`,
+              }}
+            ></div>
+            <h6>{user.attributes.username}</h6>
+          </div>
+        )}
         <p>{isoToDate(blog.attributes.createdAt)}</p>
       </div>
       <h5 className="text-xl">{blog.attributes.title}</h5>
-      <p className="card-text">{blog.attributes.content}</p>
+      {blog.attributes.content && (
+        <p className="card-text">{blog.attributes.content}</p>
+      )}
       {media?.length == 1 && (
         <Fancybox
           options={{
@@ -41,7 +45,7 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
             href={media[0].attributes.url}
           >
             <Image
-              className="img-fluid"
+              className="h-full w-auto"
               src={media[0].attributes.url}
               alt={blog.attributes.title}
               width={300}
