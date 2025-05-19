@@ -1,4 +1,5 @@
 import "@/styles/globals.scss"; // Use .scss extension
+import "@/styles/tailwind.css";
 import type { Metadata } from "next";
 import NextAuthProvider from "@/components/SessionProvider";
 

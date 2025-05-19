@@ -36,7 +36,7 @@ const Post: NextPage<Props> = ({ posts }) => {
                   />
                 ) : (
                   <div
-                    className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-md"
+                    className="w-full h-full bg-linear-to-r from-blue-500 to-purple-600 rounded-md"
                     aria-label={`Thumbnail for ${post.attributes.title}`}
                   ></div>
                 )}

@@ -53,41 +53,11 @@ export default async function PostsPage() {
       <GeneralHeader />
       <div className="content-container mx-auto">
         {postsArray.length === 0 ? (
-          <div className="p-4 border rounded">No posts found</div>
+          <div className="p-4 border">No posts found</div>
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {postsArray.map((post: Post) => (
-              <Link
-                key={post.id}
-                href={`/post/${post.id}`}
-                className="border rounded overflow-hidden transition-all hover:shadow-md flex flex-col"
-              >
-                <div className="relative w-full h-auto aspect-3/2">
-                  {getPostThumbnailUrl(post) ? (
-                    <Image
-                      className="img-cover"
-                      src={getPostThumbnailUrl(post)}
-                      alt={post.attributes.title}
-                      width={400}
-                      height={300}
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-md"
-                      aria-label={`Thumbnail for ${post.attributes.title}`}
-                    ></div>
-                  )}
-                </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <h2 className="text-xl font-semibold mb-2">
-                    {post.attributes.title}
-                  </h2>
-                  <p className="text-sm">{post.attributes.summary}</p>
-                  <div className="text-xs text-gray-500 mt-auto">
-                    {isoToDate(post.attributes.createdAt)}
-                  </div>
-                </div>
-              </Link>
+              <PostCard key={post.id} post={post} />
             ))}
           </div>
         )}
@@ -95,3 +65,34 @@ export default async function PostsPage() {
     </div>
   );
 }
+
+const PostCard = ({ post }: { post: Post }) => (
+  <Link
+    href={`/post/${post.id}`}
+    className="overflow-hidden transition-all hover:shadow-md flex flex-col bg-gray-900 rounded-md"
+  >
+    <div className="relative w-full h-auto aspect-3/2">
+      {getPostThumbnailUrl(post) ? (
+        <Image
+          className="img-cover"
+          src={getPostThumbnailUrl(post)}
+          alt={post.attributes.title}
+          width={400}
+          height={300}
+        />
+      ) : (
+        <div
+          className="w-full h-full bg-linear-to-r from-blue-500 to-purple-600-md"
+          aria-label={`Thumbnail for ${post.attributes.title}`}
+        ></div>
+      )}
+    </div>
+    <div className="p-4 flex-1 flex flex-col">
+      <h5 className="text-lg font-semibold mb-2">{post.attributes.title}</h5>
+      <p className="text-sm">{post.attributes.summary}</p>
+      <div className="text-xs text-gray-500 mt-auto">
+        {isoToDate(post.attributes.createdAt)}
+      </div>
+    </div>
+  </Link>
+);

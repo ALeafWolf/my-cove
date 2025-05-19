@@ -56,9 +56,7 @@ const LoginForm: React.FC<Props> = ({ loginFunction, loginError }) => {
         </Button>
       </form>
       {loginError && (
-        <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
-          {loginError}
-        </div>
+        <div className="mb-4 p-2 bg-red-100 text-red-700">{loginError}</div>
       )}
     </div>
   );
