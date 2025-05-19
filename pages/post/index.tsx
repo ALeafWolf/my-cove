@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import { GetServerSideProps } from "next";
 import Image from "next/image";
-import { Post, AuthSesstion } from "@/utils/types";
+import type { Post } from "@/utils/types";
 import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
 import Link from "next/link";
 import { getSession } from "next-auth/react";
@@ -25,14 +25,19 @@ const Post: NextPage<Props> = ({ posts }) => {
           posts.map((post) => (
             <Link key={post.id} href={`/post/${post.id}`} className="block">
               <div className="post-card-img-container">
-                {getPostThumbnailUrl(post) && (
+                {getPostThumbnailUrl(post) ? (
                   <Image
                     className="img-cover"
-                    src={getPostThumbnailUrl(post) || ""}
+                    src={getPostThumbnailUrl(post)}
                     alt={post.attributes.title}
                     width={400}
                     height={300}
                   />
+                ) : (
+                  <div
+                    className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-md"
+                    aria-label={`Thumbnail for ${post.attributes.title}`}
+                  ></div>
                 )}
               </div>
               <div className="p-2">
@@ -66,7 +71,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
   const res = await get("/posts", {
     headers: {
-      Authorization: `Bearer ${session.jwt}`,
+      Authorization: `Bearer ${(session as any).jwt}`,
     },
     params: {
       populate: {

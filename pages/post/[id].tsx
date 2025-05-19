@@ -17,7 +17,7 @@ import {
   getPostThumbnailUrl,
   getPrevAndNextPost,
 } from "@/utils/functions";
-import { Post, Collection } from "@/utils/types";
+import type { Post, Collection } from "@/utils/types";
 import Popup from "@/components/PopupCollectionList";
 
 interface Props {
@@ -52,8 +52,8 @@ const Post: NextPage<Props> = ({
         </span>
       </button>
       {post && (
-        <div>
-          <div className="p-6 mb-6">
+        <div className="post-container">
+          <div className="p-6 mb-6 flex flex-col gap-4">
             {headerImg && (
               <Image
                 className="img-cover"
@@ -176,7 +176,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   }
   const { data } = await get(`/posts/${ctx.params?.id}`, {
     headers: {
-      Authorization: `Bearer ${session.jwt}`,
+      Authorization: `Bearer ${(session as any).jwt}`,
     },
     params: {
       populate: {

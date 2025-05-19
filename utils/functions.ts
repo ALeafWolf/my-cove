@@ -17,12 +17,18 @@ const isoToDate = (iso: string) => {
 };
 
 const getPostThumbnailUrl = (post: Post) => {
-  const thumbnail = post.attributes.thumbnail.data;
-  const collection = post.attributes.collection;
-  let headerImg = null;
-  if (thumbnail) {
-    headerImg = thumbnail.attributes.url;
-  } else if (collection) {
+  let headerImg = "";
+  const { thumbnail, collection } = post.attributes;
+
+  if (thumbnail && thumbnail.data) {
+    headerImg = thumbnail.data.attributes.url;
+  } else if (
+    collection &&
+    collection.data &&
+    collection.data.attributes &&
+    collection.data.attributes.header_image &&
+    collection.data.attributes.header_image.data
+  ) {
     headerImg = collection.data.attributes.header_image.data.attributes.url;
   }
   return headerImg;
