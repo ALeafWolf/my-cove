@@ -109,3 +109,8 @@ export interface AuthSession {
     image?: string | null;
   };
 }
+
+export type GroupData = {
+  id: number;
+  attributes: GroupAttributes;
+};
