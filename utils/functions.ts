@@ -1,10 +1,45 @@
 import axios from "axios";
 import { Post } from "./types";
+import qs from "qs";
 
 const apiUrl = process.env.API_URL || "https://cms.thezzzcove.com";
 
-const get = async (endpoint: string, params?: object) => {
-  return await axios.get(`${apiUrl}/api${endpoint}`, params);
+// Add this interface
+interface RequestOptions {
+  headers?: Record<string, string>;
+  params?: Record<string, any>;
+  [key: string]: any;
+}
+
+const get = async (endpoint: string, params?: RequestOptions) => {
+  let url = `${apiUrl}/api${endpoint}`;
+
+  // Initialize headers as empty object
+  let headers: Record<string, string> = {};
+  let queryParams = { ...(params || {}) };
+
+  if (params && "headers" in params) {
+    // Fix the always truthy expression
+    headers = queryParams.headers ? { ...queryParams.headers } : {};
+    delete queryParams.headers;
+  }
+
+  // Create query string using qs
+  const queryString = params
+    ? `?${qs.stringify(queryParams.params || {})}`
+    : "";
+
+  // Make fetch request
+  const response = await fetch(`${url}${queryString}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return await response.json();
 };
 
 const post = async (endpoint: string, data: object = {}, params?: object) => {

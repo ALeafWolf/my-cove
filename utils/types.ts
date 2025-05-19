@@ -97,4 +97,15 @@ type UserAttributes = {
   };
 };
 
-export type InputType = 'text' | 'email' | 'password' | 'number' | 'textarea';
+export type InputType = "text" | "email" | "password" | "number" | "textarea";
+
+// Type for your authenticated session
+export interface AuthSession {
+  jwt: string;
+  user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  };
+}

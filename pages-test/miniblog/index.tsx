@@ -4,7 +4,7 @@ import type { Session } from "next-auth";
 import { getSession } from "next-auth/react";
 import { GetServerSideProps } from "next";
 import { get } from "@/utils/functions";
-import GeneralHeader from "@/components/GeneralHeader";
+import GeneralHeader from "@/components/home/HeaderSection";
 import Head from "next/head";
 import MiniBlogBlock from "@/components/MiniBlogBlock";
 import { MiniBlog } from "@/utils/types";

@@ -1,57 +1,44 @@
 import { NextPage } from "next";
 import { GetServerSideProps } from "next";
-import {
-  get,
-  isoToDate,
-  getPostThumbnailUrl,
-  parseToSingleArray,
-} from "@/utils/functions";
-import { Post, Collection } from "@/utils/types";
 import Image from "next/image";
+import type { Post } from "@/utils/types";
+import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
 import Link from "next/link";
+import { auth } from "@/auth";
+import GeneralHeader from "@/components/home/HeaderSection";
 import Head from "next/head";
-import { getSession } from "next-auth/react";
-import GeneralHeader from "@/components/GeneralHeader";
 
 interface Props {
   posts: Post[];
-  categories: string[];
-  tags: string[];
 }
 
-const Search: NextPage<Props> = ({ posts, categories, tags }) => {
+const Post: NextPage<Props> = ({ posts }) => {
+  console.log("posts", posts);
   return (
     <div>
       <Head>
-        <title>搜索结果 | My Cove</title>
+        <title>Posts | My Cove</title>
       </Head>
-      <div>
-        <GeneralHeader />
-        <h1>搜索结果</h1>
-        <div className="flex gap-2">
-          {categories?.map((category) => (
-            <h3 key={category}>{category}</h3>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          {tags?.map((tag) => (
-            <h3 key={tag}>{tag}</h3>
-          ))}
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-4">
+      <GeneralHeader />
+      <h1 className="text-center">完整的碎碎念</h1>
+      <div className="grid md:grid-cols-3 grid-cols-2 gap-4 p-4">
         {posts ? (
           posts.map((post) => (
             <Link key={post.id} href={`/post/${post.id}`} className="block">
               <div className="post-card-img-container">
-                {getPostThumbnailUrl(post) && (
+                {getPostThumbnailUrl(post) ? (
                   <Image
                     className="img-cover"
-                    src={getPostThumbnailUrl(post) || ""}
+                    src={getPostThumbnailUrl(post)}
                     alt={post.attributes.title}
                     width={400}
                     height={300}
                   />
+                ) : (
+                  <div
+                    className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-md"
+                    aria-label={`Thumbnail for ${post.attributes.title}`}
+                  ></div>
                 )}
               </div>
               <div className="p-2">
@@ -66,14 +53,15 @@ const Search: NextPage<Props> = ({ posts, categories, tags }) => {
             </Link>
           ))
         ) : (
-          <div>无对应的界面</div>
+          <div>qaq</div>
         )}
       </div>
     </div>
   );
 };
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getSession(ctx);
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await auth(context);
+
   // Check if session exists or not, if not, redirect
   if (session == null) {
     return {
@@ -83,30 +71,12 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       },
     };
   }
-  // force in array form
-  const categories = parseToSingleArray(ctx.query?.category);
-  const tags = parseToSingleArray(ctx.query?.tag);
-  let filters: any = {};
-  if (categories) {
-    filters.categories = {
-      name: {
-        $in: categories,
-      },
-    };
-  }
-  if (tags) {
-    filters.tags = {
-      name: {
-        $in: tags,
-      },
-    };
-  }
-  const { data } = await get(`/posts`, {
+
+  const res = await get("/posts", {
     headers: {
       Authorization: `Bearer ${session.jwt}`,
     },
     params: {
-      filters: filters,
       populate: {
         thumbnail: {
           fields: "url",
@@ -132,10 +102,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   return {
     props: {
-      posts: data.data,
-      categories,
-      tags,
+      posts: res.data.data || [],
     },
   };
 };
-export default Search;
+
+export default Post;
