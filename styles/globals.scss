@@ -1,89 +1,86 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 $primary-color: #2b2a37;
 $text-color: #fff;
 
-ol{
-    list-style: decimal;
+ol {
+  list-style: decimal;
 }
-ul{
-    list-style: disc;
+ul {
+  list-style: disc;
 }
-ol, ul{
-    padding-left: 1.5rem;
+ol,
+ul {
+  padding-left: 1.5rem;
 }
 /*Typography*/
 body {
-    font-size: 16px;
-    color: $text-color;
-    background-color: $primary-color;
+  font-size: 16px;
+  color: $text-color;
+  background-color: $primary-color;
 }
 h1 {
-    font-size: 2.5rem;
-    font-weight: 500;
+  font-size: 2.5rem;
+  font-weight: 500;
 }
 h2 {
-    font-size: 2rem;
-    font-weight: 500;
+  font-size: 2rem;
+  font-weight: 500;
 }
 h3 {
-    font-size: 1.5rem;
-    font-weight: 500;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 h4 {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 }
 h5 {
-    font-size: 1rem;
-    font-weight: 500;
+  font-size: 1rem;
+  font-weight: 500;
 }
 h6 {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 #__next {
-    min-height: 100vh;
+  min-height: 100vh;
 }
 .content-container {
-    max-width: 768px;
-    min-height: 100vh;
-    width: 100%;
-    padding: 30px;
+  max-width: 768px;
+  min-height: 100vh;
+  width: 100%;
+  padding: 30px;
 }
 
 .img-cover {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
 }
 
 .post-card-img-container {
-    aspect-ratio: 1.5/1;
+  aspect-ratio: 1.5/1;
 }
-.collection-popup{
-    position: fixed;
-    max-height: 700px;
-    height: 80%;
-    max-width: 500px;
-    width: 90%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 20;
-    background-color: $primary-color;
+.collection-popup {
+  position: fixed;
+  max-height: 700px;
+  height: 80%;
+  max-width: 500px;
+  width: 90%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  background-color: $primary-color;
 }
-.popup-mask{
-    position: fixed;
-    height: 100vh;
-    width: 100vw;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 10;
-    &:hover{
-        cursor: pointer;
-    }
+.popup-mask {
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  &:hover {
+    cursor: pointer;
+  }
 }
