@@ -14,7 +14,7 @@ export default function AuthStatus() {
             <Link className="block text-lg" href="/post">
               Post
             </Link>
-            <Link className="block text-lg" href="/miniblog">
+            <Link className="block text-lg" href="/mini-blog">
               Miniblog
             </Link>
           </div>

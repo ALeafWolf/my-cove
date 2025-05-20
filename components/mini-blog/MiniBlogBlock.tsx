@@ -3,7 +3,7 @@ import { MiniBlog } from "@/utils/types";
 import React from "react";
 import { isoToDate } from "@/utils/functions";
 import Image from "next/image";
-import Fancybox from "./Fancybox";
+import Fancybox from "../Fancybox";
 
 interface Props {
   blog: MiniBlog;
