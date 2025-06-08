@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/auth";
 import { Post } from "@/utils/types";
-import GeneralHeader from "@/components/home/HeaderSection";
+import GeneralHeader from "@/components/general/HeaderSection";
 import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
 
 async function getPosts() {

@@ -14,7 +14,7 @@ import {
   getPrevAndNextPost,
 } from "@/utils/functions";
 import { Post, Collection } from "@/utils/types";
-import GeneralHeader from "@/components/home/HeaderSection";
+import GeneralHeader from "@/components/general/HeaderSection";
 import CollectionList from "@/components/post/CollectionList";
 import type { GroupData } from "@/utils/types";
 

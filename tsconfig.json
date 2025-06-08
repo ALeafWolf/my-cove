@@ -28,7 +28,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "components/home/AuthStatus.tsx"
+    "components/general/AuthStatus.tsx"
   ],
   "exclude": ["node_modules"]
 }

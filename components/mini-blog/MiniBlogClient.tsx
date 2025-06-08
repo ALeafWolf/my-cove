@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import MiniBlogBlock from "./MiniBlogBlock";
 import NewMiniBlog from "./NewMiniBlog";
 import { MiniBlog } from "@/utils/types";
@@ -14,6 +15,7 @@ export default function MiniBlogClient({
   initialBlogs,
   jwt,
 }: MiniBlogClientProps) {
+  const { data: session } = useSession();
   const [blogs, setBlogs] = useState<MiniBlog[]>(initialBlogs);
   const [newBlog, setNewBlog] = useState<boolean>(false);
 
@@ -23,7 +25,7 @@ export default function MiniBlogClient({
 
   return (
     <>
-      <div className="flex flex-col gap-4">
+      <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
         {blogs.map((blog) => (
           <MiniBlogBlock key={blog.id} blog={blog} />
         ))}
@@ -31,16 +33,17 @@ export default function MiniBlogClient({
 
       <button
         onClick={() => setNewBlog(true)}
-        className="fixed rounded-full p-4 bottom-4 right-4 bg-gray-500 text-white z-10 hover:cursor-pointer"
+        className="fixed w-12 h-12 rounded-full bottom-4 right-4 border bg-primary border-white text-white z-10 hover:cursor-pointer flex items-center justify-center font-bold"
       >
         +
       </button>
 
-      {newBlog && (
+      {newBlog && session?.user && (
         <NewMiniBlog
           jwt={jwt}
           setNewBlog={setNewBlog}
           onBlogCreated={addNewBlog}
+          userId={parseInt(session.user.id)}
         />
       )}
     </>
