@@ -155,8 +155,8 @@ export default async function PostPage({ params }: PostDetailProps) {
         </div>
 
         <div className="flex flex-col gap-3 py-4 mt-6">
-          <div className="flex gap-2">
-            <div className="min-w-max">Categories:</div>
+          <div className="flex gap-2 items-center post-categories">
+            <div className="min-w-max">类别:</div>
             <div className="flex gap-2 flex-wrap">
               {post.attributes.categories.data.map((category: GroupData) => (
                 <Link
@@ -169,8 +169,8 @@ export default async function PostPage({ params }: PostDetailProps) {
               ))}
             </div>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-max">Tags:</div>
+          <div className="flex gap-2 items-center post-tags">
+            <div className="min-w-max">标签:</div>
             <div className="flex gap-2 flex-wrap">
               {post.attributes.tags.data.map((tag: GroupData) => (
                 <Link
