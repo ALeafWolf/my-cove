@@ -130,8 +130,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <p className="text-gray-500 text-lg">未找到相关文章</p>
             {searchValue && (
               <p className="text-gray-400 mt-2">
-                没有找到{searchType === "category" ? "类别" : "标签"}为 "
-                {searchValue}" 的文章
+                没有找到{searchType === "category" ? "类别" : "标签"}为 &quot;
+                {searchValue}&quot; 的文章
               </p>
             )}
           </div>
