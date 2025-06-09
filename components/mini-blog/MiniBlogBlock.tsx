@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MiniBlog } from "@/utils/types";
 import React from "react";
-import { isoToDate } from "@/utils/functions";
+import moment from "moment";
 import Image from "next/image";
 import Fancybox from "../Fancybox";
 
@@ -25,7 +25,7 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
             <h6>{user.attributes.username}</h6>
           </div>
         )}
-        <p>{isoToDate(blog.attributes.createdAt)}</p>
+        <p>{moment(blog.attributes.createdAt).format("YYYY-MM-DD")}</p>
       </div>
       <h5 className="text-xl">{blog.attributes.title}</h5>
       {blog.attributes.content && (

@@ -9,10 +9,10 @@ import html from "remark-html";
 
 import {
   get,
-  isoToDate,
   getPostThumbnailUrl,
   getPrevAndNextPost,
 } from "@/utils/functions";
+import moment from "moment";
 import { Post, Collection } from "@/utils/types";
 import GeneralHeader from "@/components/general/HeaderSection";
 import CollectionList from "@/components/post/CollectionList";
@@ -135,8 +135,14 @@ export default async function PostPage({ params }: PostDetailProps) {
               {post.attributes.title}
             </h1>
             <div className="flex justify-around text-sm text-gray-500">
-              <p>Created: {isoToDate(post.attributes.createdAt)}</p>
-              <p>Updated: {isoToDate(post.attributes.updatedAt)}</p>
+              <p>
+                Created:{" "}
+                {moment(post.attributes.createdAt).format("YYYY-MM-DD")}
+              </p>
+              <p>
+                Updated:{" "}
+                {moment(post.attributes.updatedAt).format("YYYY-MM-DD")}
+              </p>
             </div>
           </div>
 
