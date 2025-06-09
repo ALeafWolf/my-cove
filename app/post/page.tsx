@@ -2,8 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/auth";
 import { Post } from "@/utils/types";
-import GeneralHeader from "@/components/home/HeaderSection";
-import { get, isoToDate, getPostThumbnailUrl } from "@/utils/functions";
+import GeneralHeader from "@/components/general/HeaderSection";
+import { get, getPostThumbnailUrl } from "@/utils/functions";
+import moment from "moment";
 
 async function getPosts() {
   const session = await auth();
@@ -91,7 +92,7 @@ const PostCard = ({ post }: { post: Post }) => (
       <h5 className="text-lg font-semibold mb-2">{post.attributes.title}</h5>
       <p className="text-sm">{post.attributes.summary}</p>
       <div className="text-xs text-gray-500 mt-auto">
-        {isoToDate(post.attributes.createdAt)}
+        {moment(post.attributes.createdAt).format("YYYY-MM-DD")}
       </div>
     </div>
   </Link>

@@ -46,11 +46,6 @@ const post = async (endpoint: string, data: object = {}, params?: object) => {
   return await axios.post(`${apiUrl}/api${endpoint}`, data, params);
 };
 
-const isoToDate = (iso: string) => {
-  const date = new Date(iso);
-  return date.toLocaleDateString("en-US");
-};
-
 const getPostThumbnailUrl = (post: Post) => {
   let headerImg = "";
   const { thumbnail, collection } = post.attributes;
@@ -94,7 +89,6 @@ const parseToSingleArray = (input: string[] | string | undefined) => {
 export {
   get,
   post,
-  isoToDate,
   getPostThumbnailUrl,
   getPrevAndNextPost,
   parseToSingleArray,

@@ -9,13 +9,14 @@ import html from "remark-html";
 
 import {
   get,
-  isoToDate,
   getPostThumbnailUrl,
   getPrevAndNextPost,
 } from "@/utils/functions";
+import moment from "moment";
 import { Post, Collection } from "@/utils/types";
-import GeneralHeader from "@/components/home/HeaderSection";
+import GeneralHeader from "@/components/general/HeaderSection";
 import CollectionList from "@/components/post/CollectionList";
+import PostRedirectLink from "@/components/post/PostRedirectLink";
 import type { GroupData } from "@/utils/types";
 
 interface PostDetailProps {
@@ -109,11 +110,12 @@ export default async function PostPage({ params }: PostDetailProps) {
     <div className="relative">
       <GeneralHeader />
       <div className="content-container mx-auto">
-        <Link href="/post" className="px-4 py-2 border block w-max mb-4">
-          <span className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faArrowLeft} />
-            Back to Posts
-          </span>
+        <Link
+          href="/post"
+          className="px-4 py-2 border inline-flex gap-2 items-center mb-4"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
+          <span>返回</span>
         </Link>
 
         <div className="post-container">
@@ -133,50 +135,34 @@ export default async function PostPage({ params }: PostDetailProps) {
               {post.attributes.title}
             </h1>
             <div className="flex justify-around text-sm text-gray-500">
-              <p>Created: {isoToDate(post.attributes.createdAt)}</p>
-              <p>Updated: {isoToDate(post.attributes.updatedAt)}</p>
+              <p>
+                Created:{" "}
+                {moment(post.attributes.createdAt).format("YYYY-MM-DD")}
+              </p>
+              <p>
+                Updated:{" "}
+                {moment(post.attributes.updatedAt).format("YYYY-MM-DD")}
+              </p>
             </div>
           </div>
 
           {collection && (
             <div className="w-full grid md:grid-cols-3 grid-cols-1 my-6 gap-4">
-              {prevPost ? (
-                <Link
-                  className="inline-flex justify-center border p-2"
-                  href={`/post/${prevPost.id}`}
-                >
-                  <span>Previous: </span>
-                  <span>{prevPost.attributes.title}</span>
-                </Link>
-              ) : (
-                <div className="text-center p-2">No Previous Posts</div>
-              )}
-
+              <PostRedirectLink post={prevPost} label="上一篇：" />
               <CollectionList collection={collection} currentPostId={post.id} />
-
-              {nextPost ? (
-                <Link
-                  className="inline-flex justify-center border p-2"
-                  href={`/post/${nextPost.id}`}
-                >
-                  <span>Next: </span>
-                  <span>{nextPost.attributes.title}</span>
-                </Link>
-              ) : (
-                <div className="text-center p-2">No More Posts</div>
-              )}
+              <PostRedirectLink post={nextPost} label="下一篇：" />
             </div>
           )}
 
           <div
-            className="post-content"
+            className="post-content overflow-x-auto"
             dangerouslySetInnerHTML={{ __html: content }}
           ></div>
         </div>
 
         <div className="flex flex-col gap-3 py-4 mt-6">
-          <div className="flex gap-2">
-            <div className="min-w-max">Categories:</div>
+          <div className="flex gap-2 items-center post-categories">
+            <div className="min-w-max">类别:</div>
             <div className="flex gap-2 flex-wrap">
               {post.attributes.categories.data.map((category: GroupData) => (
                 <Link
@@ -189,8 +175,8 @@ export default async function PostPage({ params }: PostDetailProps) {
               ))}
             </div>
           </div>
-          <div className="flex gap-2">
-            <div className="min-w-max">Tags:</div>
+          <div className="flex gap-2 items-center post-tags">
+            <div className="min-w-max">标签:</div>
             <div className="flex gap-2 flex-wrap">
               {post.attributes.tags.data.map((tag: GroupData) => (
                 <Link

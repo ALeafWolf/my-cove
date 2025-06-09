@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import GeneralHeader from "../components/home/HeaderSection";
-import AuthStatus from "../components/home/AuthStatus";
+import GeneralHeader from "../components/general/HeaderSection";
+import AuthStatus from "../components/general/AuthStatus";
 
 export const metadata: Metadata = {
   title: "My Cove",

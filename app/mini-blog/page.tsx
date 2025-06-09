@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import { get } from "@/utils/functions";
-import { MiniBlog } from "@/utils/types";
-import GeneralHeader from "@/components/home/HeaderSection";
+import GeneralHeader from "@/components/general/HeaderSection";
 import MiniBlogClient from "@/components/mini-blog/MiniBlogClient";
 import { Metadata } from "next";
 
