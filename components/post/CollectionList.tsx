@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
 import { Collection } from "@/utils/types";
@@ -37,14 +37,14 @@ export default function CollectionList({
             <div className="flex flex-col gap-2">
               {collection.attributes.posts.data.map((post) => (
                 <div key={post.id}>
-                  <Link
+                  <TransitionLink
                     href={`/post/${post.id}`}
                     className={`block p-2 ${
                       post.id === currentPostId ? "bg-gray-500" : ""
                     }`}
                   >
                     {post.attributes.title}
-                  </Link>
+                  </TransitionLink>
                 </div>
               ))}
             </div>

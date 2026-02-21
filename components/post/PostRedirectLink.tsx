@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+
+import TransitionLink from "@/components/TransitionLink";
 import { Post } from "@/utils/types";
 
 interface PostRedirectLinkProps {
@@ -15,13 +17,13 @@ const PostRedirectLink = ({
   if (!post) return <></>;
 
   return (
-    <Link
+    <TransitionLink
       className={`inline-flex justify-center border p-2 ${className}`}
       href={`/post/${post.id}`}
     >
       <span>{label}</span>
       <span>{post.attributes.title}</span>
-    </Link>
+    </TransitionLink>
   );
 };
 
