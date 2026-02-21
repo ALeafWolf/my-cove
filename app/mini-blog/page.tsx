@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { get } from "@/utils/functions";
 import GeneralHeader from "@/components/general/HeaderSection";
@@ -49,19 +50,47 @@ async function getMiniBlogData() {
   }
 }
 
-export default async function MiniBlogPage() {
+function MiniBlogSkeleton() {
+  return (
+    <div className="content-container mx-auto">
+      <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="border p-4 rounded animate-pulse h-40 bg-gray-800"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function MiniBlogContent() {
   const { blogs, jwt } = await getMiniBlogData();
 
+  if (blogs.length === 0) {
+    return (
+      <div className="content-container mx-auto">
+        <div className="p-4 border text-center">No entries found</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="content-container mx-auto">
+      <MiniBlogClient initialBlogs={blogs} jwt={jwt} />
+    </div>
+  );
+}
+
+export default function MiniBlogPage() {
   return (
     <div>
       <GeneralHeader />
-      <div className="content-container mx-auto">
-        {blogs.length > 0 ? (
-          <MiniBlogClient initialBlogs={blogs} jwt={jwt} />
-        ) : (
-          <div className="p-4 border text-center">No entries found</div>
-        )}
-      </div>
+      <Suspense fallback={<MiniBlogSkeleton />}>
+        {/* @ts-expect-error - async RSC: supported by Next.js App Router, types lag behind */}
+        <MiniBlogContent />
+      </Suspense>
     </div>
   );
 }

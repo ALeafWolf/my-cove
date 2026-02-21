@@ -20,7 +20,7 @@ export default function NewMiniBlog({
 }: NewMiniBlogProps) {
   const [content, setContent] = useState<string>("");
   const [title, setTitle] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Disable page scroll when modal is open
@@ -42,17 +42,16 @@ export default function NewMiniBlog({
     e.preventDefault();
 
     if (!content || !title) return;
-    setIsSubmitting(true);
+    setIsPending(true);
 
     try {
       const formData = new FormData();
-      // Include user ID in the data
       formData.append(
         "data",
         JSON.stringify({
           title,
           content,
-          user: userId, // Set the user relation
+          user: userId,
         })
       );
 
@@ -62,7 +61,6 @@ export default function NewMiniBlog({
         });
       }
 
-      // Use populate to get user data back in response
       const populateParams = qs.stringify({
         populate: {
           user: {
@@ -86,7 +84,7 @@ export default function NewMiniBlog({
     } catch (error) {
       console.error("Error creating miniblog:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsPending(false);
     }
   };
 
@@ -134,9 +132,9 @@ export default function NewMiniBlog({
             <button
               type="submit"
               className="px-4 py-2 border rounded-md"
-              disabled={isSubmitting}
+              disabled={isPending}
             >
-              {isSubmitting ? "发送中..." : "发送"}
+              {isPending ? "发送中..." : "发送"}
             </button>
           </div>
         </form>

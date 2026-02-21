@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 const GeneralHeader = () => {
   const { data: session } = useSession();
   return (
-    <div className="flex justify-center items-center flex-col mb-4 p-4 gap-2">
+    <div className="flex justify-center items-center flex-col mb-4 py-4 gap-2">
       <Link href="/">
         <h1>My Cove</h1>
       </Link>

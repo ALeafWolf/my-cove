@@ -86,10 +86,16 @@ const parseToSingleArray = (input: string[] | string | undefined) => {
   return input;
 };
 
+/** Format date as YYYY-MM-DD (locale-independent). */
+const formatDate = (date: string): string => {
+  return new Date(date).toISOString().slice(0, 10);
+};
+
 export {
   get,
   post,
   getPostThumbnailUrl,
   getPrevAndNextPost,
   parseToSingleArray,
+  formatDate,
 };

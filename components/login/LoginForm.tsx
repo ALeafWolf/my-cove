@@ -1,7 +1,6 @@
 "use client";
 
 import Input from "../Input";
-import Button from "../Button";
 import { useForm, FieldValues, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 
@@ -51,9 +50,9 @@ const LoginForm: React.FC<Props> = ({ loginFunction, loginError }) => {
           disabled={isLoading}
           required
         />
-        <Button type="submit" fullWidth disabled={isLoading}>
+        <button className="w-full px-4 py-2 border rounded-md" type="submit" disabled={isLoading}>
           Login
-        </Button>
+        </button>
       </form>
       {loginError && (
         <div className="mb-4 p-2 bg-red-100 text-red-700">{loginError}</div>

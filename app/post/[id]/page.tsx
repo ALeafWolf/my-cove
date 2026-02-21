@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
+import { cache } from "react";
 import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,10 +11,10 @@ import html from "remark-html";
 
 import {
   get,
+  formatDate,
   getPostThumbnailUrl,
   getPrevAndNextPost,
 } from "@/utils/functions";
-import moment from "moment";
 import { Post, Collection } from "@/utils/types";
 import GeneralHeader from "@/components/general/HeaderSection";
 import CollectionList from "@/components/post/CollectionList";
@@ -34,7 +36,7 @@ export async function generateMetadata({ params }: PostDetailProps) {
   };
 }
 
-async function getPost(id: string) {
+const getPost = cache(async (id: string) => {
   const session = await auth();
 
   if (!session) {
@@ -77,14 +79,31 @@ async function getPost(id: string) {
     console.error("Error fetching post:", error);
     return null;
   }
-}
+});
 
 async function processContent(content: string) {
   const processedContent = await remark().use(html).process(content);
   return processedContent.toString();
 }
 
-export default async function PostPage({ params }: PostDetailProps) {
+function PostPageSkeleton() {
+  return (
+    <div className="content-container mx-auto">
+      <div className="post-container animate-pulse">
+        <div className="p-6 mb-6 flex flex-col gap-4">
+          <div className="w-full aspect-[16/9] bg-gray-700 rounded" />
+          <div className="h-8 bg-gray-700 rounded w-3/4 mx-auto" />
+          <div className="flex justify-around gap-4">
+            <div className="h-4 bg-gray-700 rounded w-32" />
+            <div className="h-4 bg-gray-700 rounded w-32" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function PostPageContent({ params }: PostDetailProps) {
   const post = await getPost(params.id);
 
   if (!post) {
@@ -93,7 +112,7 @@ export default async function PostPage({ params }: PostDetailProps) {
 
   const content = await processContent(post.attributes.content);
   const headerImg = getPostThumbnailUrl(post);
-  const collection: Collection = post.attributes.collection.data;
+  const collection: Collection = post.attributes.collection?.data;
 
   let prevPost = null,
     nextPost = null;
@@ -107,58 +126,47 @@ export default async function PostPage({ params }: PostDetailProps) {
   }
 
   return (
-    <div className="relative">
-      <GeneralHeader />
-      <div className="content-container mx-auto">
-        <Link
-          href="/post"
-          className="px-4 py-2 border inline-flex gap-2 items-center mb-4"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
-          <span>返回</span>
-        </Link>
-
-        <div className="post-container">
-          <div className="p-6 mb-6 flex flex-col gap-4">
-            {headerImg && (
-              <div className="relative w-full aspect-[16/9]">
-                <Image
-                  className="img-cover"
-                  src={headerImg}
-                  alt={post.attributes.title}
-                  width={1000}
-                  height={1000}
-                />
-              </div>
-            )}
-            <h1 className="text-center text-3xl font-bold">
-              {post.attributes.title}
-            </h1>
-            <div className="flex justify-around text-sm text-gray-500">
-              <p>
-                Created:{" "}
-                {moment(post.attributes.createdAt).format("YYYY-MM-DD")}
-              </p>
-              <p>
-                Updated:{" "}
-                {moment(post.attributes.updatedAt).format("YYYY-MM-DD")}
-              </p>
+    <div className="content-container mx-auto">
+      <div className="post-container">
+        <div className="p-6 mb-6 flex flex-col gap-4">
+          {headerImg ? (
+            <div className="relative w-full aspect-[16/9]">
+              <Image
+                className="img-cover"
+                src={headerImg}
+                alt={post.attributes.title}
+                width={1000}
+                height={1000}
+              />
             </div>
+          ) : null}
+          <h1 className="text-center text-3xl font-bold">
+            {post.attributes.title}
+          </h1>
+          <div className="flex justify-around text-sm text-gray-500">
+            <p>
+              Created:{" "}
+              {formatDate(post.attributes.createdAt)}
+            </p>
+            <p>
+              Updated:{" "}
+              {formatDate(post.attributes.updatedAt)}
+            </p>
           </div>
-
-          {collection && (
-            <div className="w-full grid md:grid-cols-3 grid-cols-1 my-6 gap-4">
-              <PostRedirectLink post={prevPost} label="上一篇：" />
-              <CollectionList collection={collection} currentPostId={post.id} />
-              <PostRedirectLink post={nextPost} label="下一篇：" />
-            </div>
-          )}
-
-          <div
-            className="post-content overflow-x-auto"
-            dangerouslySetInnerHTML={{ __html: content }}
-          ></div>
         </div>
+
+        {collection ? (
+          <div className="w-full grid md:grid-cols-3 grid-cols-1 my-6 gap-4">
+            <PostRedirectLink post={prevPost} label="上一篇：" />
+            <CollectionList collection={collection} currentPostId={post.id} />
+            <PostRedirectLink post={nextPost} label="下一篇：" />
+          </div>
+        ) : null}
+
+        <div
+          className="post-content overflow-x-auto"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
 
         <div className="flex flex-col gap-3 py-4 mt-6">
           <div className="flex gap-2 items-center post-categories">
@@ -191,6 +199,28 @@ export default async function PostPage({ params }: PostDetailProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+export default function PostPage({ params }: PostDetailProps) {
+  return (
+    <div className="relative">
+      <GeneralHeader />
+      <div className="content-container mx-auto">
+        <Link
+          href="/post"
+          className="px-4 py-2 border inline-flex gap-2 items-center mb-4"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
+          <span>返回</span>
+        </Link>
+      </div>
+      <Suspense fallback={<PostPageSkeleton />}>
+        {/* Async Server Component: valid in Next.js App Router */}
+        {/* @ts-expect-error - async RSC return type is Promise<Element>, supported by Suspense */}
+        <PostPageContent params={params} />
+      </Suspense>
     </div>
   );
 }

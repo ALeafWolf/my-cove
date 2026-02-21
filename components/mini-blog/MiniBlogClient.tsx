@@ -20,7 +20,7 @@ export default function MiniBlogClient({
   const [newBlog, setNewBlog] = useState<boolean>(false);
 
   const addNewBlog = (blog: MiniBlog) => {
-    setBlogs([blog, ...blogs]);
+    setBlogs((prev) => [blog, ...prev]);
   };
 
   return (
