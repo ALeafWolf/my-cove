@@ -20,7 +20,7 @@ export default function CollectionList({
   return (
     <div className="relative">
       <button
-        className="inline-flex gap-2 border p-2 items-center justify-center bg-primary w-full"
+        className="inline-flex gap-2 border p-2 items-center justify-center bg-primary w-full hover:cursor-pointer"
         onClick={() => setShowList(true)}
       >
         <FontAwesomeIcon icon={faList} size="lg" color="white" />
