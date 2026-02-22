@@ -88,7 +88,6 @@ export default function MiniBlogPage() {
     <div>
       <GeneralHeader />
       <Suspense fallback={<MiniBlogSkeleton />}>
-        {/* @ts-expect-error - async RSC: supported by Next.js App Router, types lag behind */}
         <MiniBlogContent />
       </Suspense>
     </div>
