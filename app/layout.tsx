@@ -1,5 +1,6 @@
 import "@/styles/globals.scss"; // Use .scss extension
 import "@/styles/tailwind.css";
+import "highlight.js/styles/github-dark.css";
 import type { Metadata } from "next";
 import NextAuthProvider from "@/components/SessionProvider";
 import LoadingProvider from "@/components/LoadingProvider";

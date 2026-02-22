@@ -5,18 +5,16 @@ import { cache } from "react";
 import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faList, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { remark } from "remark";
-import html from "remark-html";
-
+import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import {
   get,
   formatDate,
   getPostThumbnailUrl,
   getPrevAndNextPost,
 } from "@/utils/functions";
-import { Post, Collection } from "@/utils/types";
+import { Collection } from "@/utils/types";
 import GeneralHeader from "@/components/general/HeaderSection";
+import MarkdownContent from "@/components/general/MarkdownContent";
 import CollectionList from "@/components/post/CollectionList";
 import PostRedirectLink from "@/components/post/PostRedirectLink";
 import type { GroupData } from "@/utils/types";
@@ -81,11 +79,6 @@ const getPost = cache(async (id: string) => {
   }
 });
 
-async function processContent(content: string) {
-  const processedContent = await remark().use(html).process(content);
-  return processedContent.toString();
-}
-
 function PostPageSkeleton() {
   return (
     <div className="content-container mx-auto">
@@ -110,7 +103,6 @@ async function PostPageContent({ params }: PostDetailProps) {
     notFound();
   }
 
-  const content = await processContent(post.attributes.content);
   const headerImg = getPostThumbnailUrl(post);
   const collection: Collection = post.attributes.collection?.data;
 
@@ -157,16 +149,14 @@ async function PostPageContent({ params }: PostDetailProps) {
 
         {collection ? (
           <div className="w-full grid md:grid-cols-3 grid-cols-1 my-6 gap-4">
-            <PostRedirectLink post={prevPost} label="上一篇：" />
+            <PostRedirectLink post={prevPost} label={faArrowLeft} />
             <CollectionList collection={collection} currentPostId={post.id} />
-            <PostRedirectLink post={nextPost} label="下一篇：" />
+            <PostRedirectLink post={nextPost} label={faArrowRight} />
           </div>
         ) : null}
 
-        <div
-          className="post-content overflow-x-auto"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+        {/* @ts-expect-error Async Server Component - valid in Next.js App Router */}
+        <MarkdownContent content={post.attributes.content} />
 
         <div className="flex flex-col gap-3 py-4 mt-6">
           <div className="flex gap-2 items-center post-categories">
