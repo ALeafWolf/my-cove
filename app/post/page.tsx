@@ -88,7 +88,6 @@ export default function PostsPage() {
     <div>
       <GeneralHeader />
       <Suspense fallback={<PostGridSkeleton />}>
-        {/* @ts-expect-error - async RSC: supported by Next.js App Router, types lag behind */}
         <PostGrid />
       </Suspense>
     </div>

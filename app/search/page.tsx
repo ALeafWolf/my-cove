@@ -11,13 +11,16 @@ import {
 } from "@/utils/functions";
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     category?: string | string[];
     tag?: string | string[];
-  };
+  }>;
 }
 
-async function getFilteredPosts(searchParams: SearchPageProps["searchParams"]) {
+async function getFilteredPosts(searchParams: {
+  category?: string | string[];
+  tag?: string | string[];
+}) {
   const session = await auth();
 
   if (!session) {
@@ -93,8 +96,9 @@ async function getFilteredPosts(searchParams: SearchPageProps["searchParams"]) {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const resolvedSearchParams = await searchParams;
   const { posts, searchType, searchValue } = await getFilteredPosts(
-    searchParams
+    resolvedSearchParams
   );
   const postsArray = Array.isArray(posts) ? posts : [];
 
