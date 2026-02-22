@@ -20,13 +20,12 @@ import PostRedirectLink from "@/components/post/PostRedirectLink";
 import type { GroupData } from "@/utils/types";
 
 interface PostDetailProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: PostDetailProps) {
-  const post = await getPost(params.id);
+  const { id } = await params;
+  const post = await getPost(id);
 
   return {
     title: `${post?.attributes.title || "Post Not Found"} | My Cove`,
@@ -97,7 +96,8 @@ function PostPageSkeleton() {
 }
 
 async function PostPageContent({ params }: PostDetailProps) {
-  const post = await getPost(params.id);
+  const { id } = await params;
+  const post = await getPost(id);
 
   if (!post) {
     notFound();
@@ -155,7 +155,6 @@ async function PostPageContent({ params }: PostDetailProps) {
           </div>
         ) : null}
 
-        {/* @ts-expect-error Async Server Component - valid in Next.js App Router */}
         <MarkdownContent content={post.attributes.content} />
 
         <div className="flex flex-col gap-3 py-4 mt-6">
@@ -207,8 +206,6 @@ export default function PostPage({ params }: PostDetailProps) {
         </Link>
       </div>
       <Suspense fallback={<PostPageSkeleton />}>
-        {/* Async Server Component: valid in Next.js App Router */}
-        {/* @ts-expect-error - async RSC return type is Promise<Element>, supported by Suspense */}
         <PostPageContent params={params} />
       </Suspense>
     </div>
