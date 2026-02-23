@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { auth } from "@/auth";
 import { Post } from "@/utils/types";
 import GeneralHeader from "@/components/general/HeaderSection";
 import {
@@ -21,12 +20,6 @@ async function getFilteredPosts(searchParams: {
   category?: string | string[];
   tag?: string | string[];
 }) {
-  const session = await auth();
-
-  if (!session) {
-    return { posts: [], searchType: null, searchValue: null };
-  }
-
   const category = parseToSingleArray(searchParams.category);
   const tag = parseToSingleArray(searchParams.tag);
 
@@ -56,9 +49,6 @@ async function getFilteredPosts(searchParams: {
     }
 
     const res = await get("/posts", {
-      headers: {
-        Authorization: `Bearer ${session.jwt}`,
-      },
       params: {
         filters,
         populate: {

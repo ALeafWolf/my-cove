@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { cache } from "react";
-import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -23,6 +22,19 @@ interface PostDetailProps {
   params: Promise<{ id: string }>;
 }
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  try {
+    const res = await get("/posts", { params: { fields: ["id"] } });
+    return (res.data || []).map((post: { id: number }) => ({
+      id: String(post.id),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: PostDetailProps) {
   const { id } = await params;
   const post = await getPost(id);
@@ -34,17 +46,8 @@ export async function generateMetadata({ params }: PostDetailProps) {
 }
 
 const getPost = cache(async (id: string) => {
-  const session = await auth();
-
-  if (!session) {
-    return null;
-  }
-
   try {
     const res = await get(`/posts/${id}`, {
-      headers: {
-        Authorization: `Bearer ${session.jwt}`,
-      },
       params: {
         populate: {
           thumbnail: {
@@ -110,7 +113,7 @@ async function PostPageContent({ params }: PostDetailProps) {
     nextPost = null;
   if (collection) {
     const postNavigation = getPrevAndNextPost(
-      collection.attributes.posts.data,
+      collection.attributes.posts?.data || [],
       post.id
     );
     prevPost = postNavigation.prevPost;
@@ -163,7 +166,7 @@ async function PostPageContent({ params }: PostDetailProps) {
           <div className="flex gap-2 items-center post-categories">
             <div className="min-w-max">类别:</div>
             <div className="flex gap-2 flex-wrap">
-              {post.attributes.categories.data.map((category: GroupData) => (
+              {(post.attributes.categories?.data || []).map((category: GroupData) => (
                 <Link
                   href={`/search?category=${category.attributes.name}`}
                   className="block px-2 py-1 border"
@@ -177,7 +180,7 @@ async function PostPageContent({ params }: PostDetailProps) {
           <div className="flex gap-2 items-center post-tags">
             <div className="min-w-max">标签:</div>
             <div className="flex gap-2 flex-wrap">
-              {post.attributes.tags.data.map((tag: GroupData) => (
+              {(post.attributes.tags?.data || []).map((tag: GroupData) => (
                 <Link
                   href={`/search?tag=${tag.attributes.name}`}
                   className="block px-2 py-1 border"

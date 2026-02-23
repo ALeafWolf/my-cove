@@ -1,19 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
-import { auth } from "@/auth";
 import { Post } from "@/utils/types";
 import GeneralHeader from "@/components/general/HeaderSection";
 import { get, formatDate, getPostThumbnailUrl } from "@/utils/functions";
 
-async function getPosts() {
-  const session = await auth();
+export const revalidate = 3600;
 
+async function getPosts() {
   try {
     const res = await get("/posts", {
-      headers: {
-        Authorization: `Bearer ${session?.jwt}`,
-      },
       params: {
         populate: {
           thumbnail: {
