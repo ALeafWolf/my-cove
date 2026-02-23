@@ -129,6 +129,8 @@ async function PostPageContent({ params }: PostDetailProps) {
                 alt={post.attributes.title}
                 width={1000}
                 height={1000}
+                fetchPriority="high"
+                loading="lazy"
               />
             </div>
           ) : null}
