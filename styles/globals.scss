@@ -45,7 +45,8 @@ h6 {
 .content-container {
   max-width: 768px;
   width: 100%;
-  padding: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
 .img-cover {
@@ -94,5 +95,24 @@ h6 {
   }
   th, td{
     padding: 0.5rem;
+  }
+}
+
+.tool-tip{
+  position: relative;
+  &::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 10;
+  }
+  &:hover{
+    &::before{
+      visibility: hidden;
+    }
   }
 }
