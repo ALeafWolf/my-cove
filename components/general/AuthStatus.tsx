@@ -9,6 +9,17 @@ import rotate from "@/assets/images/rotate.png";
 export default function AuthStatus() {
   const { data: _session, status } = useSession();
 
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center">
+        <div
+          className="size-8 border-2 border-current border-t-transparent rounded-full animate-spin"
+          aria-hidden
+        />
+      </div>
+    );
+  }
+
   return (
     <>
       {status === "authenticated" ? (
