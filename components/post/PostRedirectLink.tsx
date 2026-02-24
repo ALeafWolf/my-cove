@@ -16,7 +16,7 @@ const PostRedirectLink = ({
   label,
   className = "",
 }: PostRedirectLinkProps) => {
-  if (!post) return <></>;
+  if (!post) return <div></div>;
 
   return (
     <TransitionLink
