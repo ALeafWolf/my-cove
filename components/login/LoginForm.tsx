@@ -40,6 +40,7 @@ const LoginForm: React.FC<Props> = ({ loginFunction, loginError }) => {
           errors={errors}
           disabled={isLoading}
           required
+          spellCheck={false}
         />
         <Input
           label="Password"
@@ -50,13 +51,23 @@ const LoginForm: React.FC<Props> = ({ loginFunction, loginError }) => {
           disabled={isLoading}
           required
         />
-        <button className="w-full px-4 py-2 border rounded-md" type="submit" disabled={isLoading}>
-          Login
+        {loginError && (
+          <div
+            className="p-2 bg-red-100 text-red-700 rounded"
+            role="alert"
+            aria-live="polite"
+          >
+            {loginError}
+          </div>
+        )}
+        <button
+          className="w-full px-4 py-2 border rounded-md focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none"
+          type="submit"
+          disabled={isLoading}
+        >
+          Log In
         </button>
       </form>
-      {loginError && (
-        <div className="mb-4 p-2 bg-red-100 text-red-700">{loginError}</div>
-      )}
     </div>
   );
 };

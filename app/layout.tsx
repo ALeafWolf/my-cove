@@ -1,7 +1,8 @@
 import "@/styles/globals.scss"; // Use .scss extension
 import "@/styles/tailwind.css";
 import "highlight.js/styles/github-dark.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { auth } from "@/auth";
 import NextAuthProvider from "@/components/SessionProvider";
 import LoadingProvider from "@/components/LoadingProvider";
 import NavigationEvents from "@/components/NavigationEvents";
@@ -11,18 +12,29 @@ export const metadata: Metadata = {
   description: "Welcome to The ZZZ Cove",
 };
 
-export default function RootLayout({
+export const viewport: Viewport = {
+  themeColor: "#2b2a37",
+};
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
   return (
-    <html lang="en">
+    <html lang="en" style={{ colorScheme: "dark" }}>
       <body>
-        <NextAuthProvider>
+        <a
+          href="#main-content"
+          className="sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:p-4 focus:bg-primary focus:text-white focus:border focus:border-white focus:m-0 focus:w-auto focus:h-auto focus:overflow-visible focus:not-sr-only"
+        >
+          Skip to content
+        </a>
+        <NextAuthProvider session={session}>
           <LoadingProvider>
             <NavigationEvents />
-            {children}
+            <main id="main-content">{children}</main>
           </LoadingProvider>
         </NextAuthProvider>
       </body>

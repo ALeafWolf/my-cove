@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { MiniBlog } from "@/utils/types";
 import React from "react";
 import { formatDate } from "@/utils/functions";
@@ -21,7 +20,9 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
               style={{
                 backgroundImage: `url(${user.attributes.thumbnail.data.attributes.url})`,
               }}
-            ></div>
+              role="img"
+              aria-label={`Avatar of ${user.attributes.username}`}
+            />
             <h6>{user.attributes.username}</h6>
           </div>
         )}
@@ -72,27 +73,36 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
             data-fancybox={`gallery-${blog.id}`}
             href={media[0].attributes.url}
             className="relative block"
+            aria-label={`Gallery for ${blog.attributes.title}, image 1 of ${media.length}`}
           >
             <div
               className="aspect-square bg-cover bg-center"
               style={{
                 backgroundImage: `url(${media[0].attributes.url})`,
               }}
-            ></div>
+              role="img"
+              aria-label={blog.attributes.title}
+            />
             {/* Image count overlay */}
-            <div className="absolute bottom-2 right-2 bg-gray-500 bg-opacity-70 text-white text-sm px-2 py-1 rounded">
+            <div
+              className="absolute bottom-2 right-2 bg-gray-500 bg-opacity-70 text-white text-sm px-2 py-1 rounded"
+              aria-hidden="true"
+            >
               1/{media.length}
             </div>
           </a>
 
           {/* Hidden images for fancybox gallery */}
-          {media.slice(1).map((m) => (
+          {media.slice(1).map((m, idx) => (
             <a
               data-fancybox={`gallery-${blog.id}`}
               key={m.id}
               href={m.attributes.url}
               className="hidden"
-            ></a>
+              aria-label={`View image ${idx + 2} of ${media.length}`}
+            >
+              <span className="sr-only">Image {idx + 2} of {media.length}</span>
+            </a>
           ))}
         </Fancybox>
       )}

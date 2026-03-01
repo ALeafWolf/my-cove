@@ -132,8 +132,7 @@ async function PostPageContent({ params }: PostDetailProps) {
                 alt={post.attributes.title}
                 width={1000}
                 height={1000}
-                fetchPriority="high"
-                loading="lazy"
+                priority
               />
             </div>
           ) : null}
@@ -164,7 +163,7 @@ async function PostPageContent({ params }: PostDetailProps) {
 
         <div className="flex flex-col gap-3 py-4 mt-6">
           <div className="flex gap-2 items-center post-categories">
-            <div className="min-w-max">类别:</div>
+            <span className="min-w-max">类别:</span>
             <div className="flex gap-2 flex-wrap">
               {(post.attributes.categories?.data || []).map((category: GroupData) => (
                 <Link
@@ -178,7 +177,7 @@ async function PostPageContent({ params }: PostDetailProps) {
             </div>
           </div>
           <div className="flex gap-2 items-center post-tags">
-            <div className="min-w-max">标签:</div>
+            <span className="min-w-max">标签:</span>
             <div className="flex gap-2 flex-wrap">
               {(post.attributes.tags?.data || []).map((tag: GroupData) => (
                 <Link
@@ -204,9 +203,9 @@ export default function PostPage({ params }: PostDetailProps) {
       <div className="content-container mx-auto">
         <Link
           href="/post"
-          className="px-4 py-2 border inline-flex gap-2 items-center mb-4"
+          className="px-4 py-2 border inline-flex gap-2 items-center mb-4 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none rounded"
         >
-          <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
+          <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" aria-hidden />
           <span>返回</span>
         </Link>
       </div>

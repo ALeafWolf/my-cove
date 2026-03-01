@@ -144,7 +144,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 const PostCard = ({ post }: { post: Post }) => (
   <Link
     href={`/post/${post.id}`}
-    className="overflow-hidden transition-all hover:shadow-md flex flex-col bg-gray-900 rounded-md"
+    className="overflow-hidden transition-shadow hover:shadow-md flex flex-col bg-gray-900 rounded-md focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none"
   >
     <div className="relative w-full h-auto aspect-3/2">
       {getPostThumbnailUrl(post) ? (
