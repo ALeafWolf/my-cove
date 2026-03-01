@@ -13,6 +13,8 @@ interface InputProps {
   register: UseFormRegister<FieldValues>;
   errors: FieldErrors;
   disabled?: boolean;
+  autoComplete?: string;
+  spellCheck?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -24,7 +26,10 @@ const Input: React.FC<InputProps> = ({
   register,
   errors,
   disabled,
+  autoComplete,
+  spellCheck,
 }) => {
+  const effectiveAutoComplete = autoComplete ?? (id === "email" || id === "password" ? id : undefined);
   return (
     <div>
       {label && (
@@ -47,16 +52,18 @@ const Input: React.FC<InputProps> = ({
               ring-inset
               bg-transparent
               placeholder:text-gray-400
-              focus:ring-2
-              focus:ring-sky-600
+              focus-visible:ring-2
+              focus-visible:ring-sky-600
+              focus-visible:outline-none
               sm:text-sm
               sm:leading-6
             `,
-              errors[id] && "focus:ring-rose-500",
+              errors[id] && "focus-visible:ring-rose-500",
               disabled && "opacity-50 cursor-default"
             )}
             id={id}
-            autoComplete={id}
+            autoComplete={effectiveAutoComplete}
+            spellCheck={spellCheck}
             disabled={disabled}
             placeholder={placeholder}
             {...register(id, { required })}
@@ -75,17 +82,19 @@ const Input: React.FC<InputProps> = ({
             ring-inset
             bg-transparent
             placeholder:text-gray-400
-            focus:ring-2
-            focus:ring-sky-600
+            focus-visible:ring-2
+            focus-visible:ring-sky-600
+            focus-visible:outline-none
             sm:text-sm
             sm:leading-6
         `,
-              errors[id] && "focus:ring-rose-500",
+              errors[id] && "focus-visible:ring-rose-500",
               disabled && "opacity-50 cursor-default"
             )}
             id={id}
             type={type}
-            autoComplete={id}
+            autoComplete={effectiveAutoComplete}
+            spellCheck={spellCheck}
             disabled={disabled}
             placeholder={placeholder}
             {...register(id, { required })}

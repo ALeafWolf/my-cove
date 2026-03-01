@@ -32,8 +32,10 @@ export default function MiniBlogClient({
       </div>
 
       <button
+        type="button"
         onClick={() => setNewBlog(true)}
-        className="fixed w-12 h-12 rounded-full bottom-4 right-4 border bg-primary border-white text-white z-10 hover:cursor-pointer flex items-center justify-center font-bold"
+        aria-label="Create new mini-blog"
+        className="fixed w-12 h-12 rounded-full bottom-4 right-4 border bg-primary border-white text-white z-10 hover:cursor-pointer flex items-center justify-center font-bold focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         +
       </button>
