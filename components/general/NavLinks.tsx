@@ -1,5 +1,5 @@
 "use client";
-import TransitionLink from "@/components/TransitionLink";
+import TransitionLink from "@/components/general/TransitionLink";
 
 export default function NavLinks() {
   return (

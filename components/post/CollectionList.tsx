@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import TransitionLink from "@/components/TransitionLink";
+import TransitionLink from "@/components/general/TransitionLink";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faList } from "@fortawesome/free-solid-svg-icons";
 import { Collection } from "@/utils/types";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ComponentProps } from "react";
-import { useLoading } from "./LoadingProvider";
+import { useLoading } from "../LoadingProvider";
 
 type TransitionLinkProps = ComponentProps<typeof Link>;
 
