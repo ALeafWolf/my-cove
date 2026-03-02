@@ -1,4 +1,4 @@
-export const publicPaths = ["/", "/login", "/post"];
+export const publicPaths = ["/", "/login", "/post", "/not-found"];
 
 export interface NavLink {
   href: string;

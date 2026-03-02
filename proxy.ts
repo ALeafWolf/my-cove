@@ -20,7 +20,7 @@ export default auth(async (req) => {
   const { pathname } = req.nextUrl;
 
   if (!isAuthenticated && !isPublicPath(pathname)) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/not-found", req.url));
   }
 
   if (!isAuthenticated) {
@@ -28,7 +28,7 @@ export default auth(async (req) => {
     if (postMatch) {
       const isDraft = await isDraftPost(postMatch[1]);
       if (isDraft) {
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL("/not-found", req.url));
       }
     }
   }
