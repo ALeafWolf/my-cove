@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { isPublicPath } from "@/utils/routes";
 
-const apiUrl = process.env.API_URL || "https://cms.thezzzcove.com";
+const apiUrl = process.env.API_URL || "http://localhost:1337";
 
 async function isDraftPost(postId: string): Promise<boolean> {
   try {

@@ -3,7 +3,6 @@ export const publicPaths = ["/", "/login", "/post", "/not-found"];
 export interface NavLink {
   href: string;
   label: string;
-  publicOnly?: boolean;
 }
 
 export const navLinks: NavLink[] = [
