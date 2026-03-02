@@ -1,16 +1,23 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
+import { auth } from "@/auth";
 import { Post } from "@/utils/types";
 import GeneralHeader from "@/components/general/HeaderSection";
 import { get, formatDate, getPostThumbnailUrl } from "@/utils/functions";
+import type { Session } from "next-auth";
 
 export const revalidate = 3600;
 
-async function getPosts() {
+async function getPosts(session: Session | null) {
   try {
+    const isAuthenticated = !!session?.user;
     const res = await get("/posts", {
+      ...(isAuthenticated && {
+        headers: { Authorization: `Bearer ${session!.jwt}` },
+      }),
       params: {
+        ...(isAuthenticated && { publicationState: "preview" }),
         populate: {
           thumbnail: {
             fields: "url",
@@ -56,8 +63,8 @@ function PostGridSkeleton() {
   );
 }
 
-async function PostGrid() {
-  const posts = await getPosts();
+async function PostGrid({ session }: { session: Session | null }) {
+  const posts = await getPosts(session);
   const postsArray = Array.isArray(posts) ? posts : [];
 
   if (postsArray.length === 0) {
@@ -79,12 +86,13 @@ async function PostGrid() {
   );
 }
 
-export default function PostsPage() {
+export default async function PostsPage() {
+  const session = await auth();
   return (
     <div>
       <GeneralHeader />
       <Suspense fallback={<PostGridSkeleton />}>
-        <PostGrid />
+        <PostGrid session={session} />
       </Suspense>
     </div>
   );

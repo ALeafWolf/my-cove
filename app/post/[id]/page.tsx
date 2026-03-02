@@ -12,6 +12,7 @@ import {
   getPrevAndNextPost,
 } from "@/utils/functions";
 import { Collection } from "@/utils/types";
+import { auth } from "@/auth";
 import GeneralHeader from "@/components/general/HeaderSection";
 import MarkdownContent from "@/components/general/MarkdownContent";
 import CollectionList from "@/components/post/CollectionList";
@@ -35,20 +36,13 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: PostDetailProps) {
-  const { id } = await params;
-  const post = await getPost(id);
-
-  return {
-    title: `${post?.attributes.title || "Post Not Found"} | My Cove`,
-    description: post?.attributes.summary || "",
-  };
-}
-
-const getPost = cache(async (id: string) => {
+// React.cache deduplicates calls with the same (id, jwt) per request
+const getPost = cache(async (id: string, jwt?: string) => {
   try {
     const res = await get(`/posts/${id}`, {
+      ...(jwt && { headers: { Authorization: `Bearer ${jwt}` } }),
       params: {
+        ...(jwt && { publicationState: "preview" }),
         populate: {
           thumbnail: {
             fields: "url",
@@ -81,6 +75,17 @@ const getPost = cache(async (id: string) => {
   }
 });
 
+export async function generateMetadata({ params }: PostDetailProps) {
+  const { id } = await params;
+  const session = await auth();
+  const post = await getPost(id, session?.jwt);
+
+  return {
+    title: `${post?.attributes.title || "Post Not Found"} | My Cove`,
+    description: post?.attributes.summary || "",
+  };
+}
+
 function PostPageSkeleton() {
   return (
     <div className="content-container mx-auto">
@@ -98,9 +103,12 @@ function PostPageSkeleton() {
   );
 }
 
-async function PostPageContent({ params }: PostDetailProps) {
+async function PostPageContent({
+  params,
+  jwt,
+}: PostDetailProps & { jwt?: string }) {
   const { id } = await params;
-  const post = await getPost(id);
+  const post = await getPost(id, jwt);
 
   if (!post) {
     notFound();
@@ -196,7 +204,8 @@ async function PostPageContent({ params }: PostDetailProps) {
   );
 }
 
-export default function PostPage({ params }: PostDetailProps) {
+export default async function PostPage({ params }: PostDetailProps) {
+  const session = await auth();
   return (
     <div className="relative">
       <GeneralHeader />
@@ -210,7 +219,7 @@ export default function PostPage({ params }: PostDetailProps) {
         </Link>
       </div>
       <Suspense fallback={<PostPageSkeleton />}>
-        <PostPageContent params={params} />
+        <PostPageContent params={params} jwt={session?.jwt} />
       </Suspense>
     </div>
   );
