@@ -8,7 +8,7 @@ import NextAuthProvider from "@/components/SessionProvider";
 import LoadingProvider from "@/components/LoadingProvider";
 import NavigationEvents from "@/components/NavigationEvents";
 
-const GA_ID = "G-470JV41HFX";
+const GA_ID = process.env.PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
   title: "The ZZZ Cove",
