@@ -2,10 +2,13 @@ import "@/styles/globals.scss"; // Use .scss extension
 import "@/styles/tailwind.css";
 import "highlight.js/styles/github-dark.css";
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { auth } from "@/auth";
 import NextAuthProvider from "@/components/SessionProvider";
 import LoadingProvider from "@/components/LoadingProvider";
 import NavigationEvents from "@/components/NavigationEvents";
+
+const GA_ID = process.env.PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
   title: "The ZZZ Cove",
@@ -24,6 +27,20 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <html lang="en" style={{ colorScheme: "dark" }}>
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
+      </head>
       <body>
         <a
           href="#main-content"
