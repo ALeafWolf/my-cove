@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import { DreamMasonry } from "dream-masonry";
 import MiniBlogBlock from "./MiniBlogBlock";
-import NewMiniBlog from "./NewMiniBlog";
 import { MiniBlog } from "@/utils/types";
-import { get } from "@/utils/functions";
-import { MINI_BLOG_POPULATE, PAGE_SIZE } from "@/utils/constants";
+import { loadMoreBlogs } from "@/app/actions/mini-blog";
+
+const NewMiniBlog = dynamic(() => import("./NewMiniBlog"));
 
 interface PaginationMeta {
   page: number;
@@ -19,7 +20,6 @@ interface PaginationMeta {
 interface MiniBlogClientProps {
   initialBlogs: MiniBlog[];
   paginationMeta?: PaginationMeta | null;
-  jwt?: string;
 }
 
 // Mirror DreamMasonry's column layout constants
@@ -50,7 +50,6 @@ type MasonryBlogItem = {
 export default function MiniBlogClient({
   initialBlogs,
   paginationMeta,
-  jwt,
 }: MiniBlogClientProps) {
   const { data: session } = useSession();
   const [blogs, setBlogs] = useState<MiniBlog[]>(initialBlogs);
@@ -58,6 +57,7 @@ export default function MiniBlogClient({
   const [currentPage, setCurrentPage] = useState(paginationMeta?.page ?? 1);
   const [pageCount, setPageCount] = useState(paginationMeta?.pageCount ?? 1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const isFetchingRef = useRef(false);
   const hasMore = currentPage < pageCount;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,17 +101,11 @@ export default function MiniBlogClient({
   const columnWidth = containerWidth > 0 ? calcColumnWidth(containerWidth) : 0;
 
   const loadMore = useCallback(async () => {
-    if (isFetchingMore || !hasMore || !jwt) return;
+    if (isFetchingRef.current || !hasMore) return;
+    isFetchingRef.current = true;
     setIsFetchingMore(true);
     try {
-      const res = await get("/mini-blogs", {
-        headers: { Authorization: `Bearer ${jwt}` },
-        params: {
-          populate: MINI_BLOG_POPULATE,
-          sort: ["id:desc"],
-          pagination: { page: currentPage + 1, pageSize: PAGE_SIZE },
-        },
-      });
+      const res = await loadMoreBlogs(currentPage + 1);
       const newBlogs: MiniBlog[] = res.data || [];
       setBlogs((prev) => [...prev, ...newBlogs]);
       setCurrentPage(res.meta?.pagination?.page ?? currentPage + 1);
@@ -119,13 +113,14 @@ export default function MiniBlogClient({
     } catch (err) {
       console.error("Error loading more mini blogs:", err);
     } finally {
+      isFetchingRef.current = false;
       setIsFetchingMore(false);
     }
-  }, [isFetchingMore, hasMore, jwt, currentPage, pageCount]);
+  }, [hasMore, currentPage, pageCount]);
 
-  const addNewBlog = (blog: MiniBlog) => {
+  const addNewBlog = useCallback((blog: MiniBlog) => {
     setBlogs((prev) => [blog, ...prev]);
-  };
+  }, []);
 
   return (
     <>
@@ -190,10 +185,8 @@ export default function MiniBlogClient({
 
       {newBlog && session?.user && (
         <NewMiniBlog
-          jwt={jwt}
           setNewBlog={setNewBlog}
           onBlogCreated={addNewBlog}
-          userId={parseInt(session.user.id)}
         />
       )}
     </>

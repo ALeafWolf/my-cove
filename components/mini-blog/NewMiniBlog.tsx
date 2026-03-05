@@ -1,22 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import qs from "qs";
 import { MiniBlog } from "@/utils/types";
-import { post } from "@/utils/functions";
+import { createBlog } from "@/app/actions/mini-blog";
 
 const MODAL_TITLE_ID = "miniblog-modal-title";
 
 interface NewMiniBlogProps {
-  jwt?: string;
-  userId?: number; // Add user ID prop
   setNewBlog: (show: boolean) => void;
   onBlogCreated?: (blog: MiniBlog) => void;
 }
 
 export default function NewMiniBlog({
-  jwt,
-  userId,
   setNewBlog,
   onBlogCreated,
 }: NewMiniBlogProps) {
@@ -56,14 +51,8 @@ export default function NewMiniBlog({
 
     try {
       const formData = new FormData();
-      formData.append(
-        "data",
-        JSON.stringify({
-          title,
-          content,
-          user: userId,
-        })
-      );
+      formData.append("title", title);
+      formData.append("content", content);
 
       if (fileRef.current?.files?.length) {
         Array.from(fileRef.current.files).forEach((file) => {
@@ -71,23 +60,10 @@ export default function NewMiniBlog({
         });
       }
 
-      const populateParams = qs.stringify({
-        populate: {
-          user: {
-            populate: ["thumbnail"],
-          },
-          media: true,
-        },
-      });
+      const blog = await createBlog(formData);
 
-      const response = await post(`/mini-blogs?${populateParams}`, formData, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
-
-      if (response.data && onBlogCreated) {
-        onBlogCreated(response.data.data);
+      if (onBlogCreated) {
+        onBlogCreated(blog);
       }
 
       setNewBlog(false);

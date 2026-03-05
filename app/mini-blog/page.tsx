@@ -34,7 +34,6 @@ async function getMiniBlogData() {
     return {
       blogs: res.data || [],
       paginationMeta: res.meta?.pagination ?? null,
-      jwt: session.jwt,
     };
   } catch (error) {
     console.error("Error fetching mini blogs:", error);
@@ -61,7 +60,7 @@ function MiniBlogSkeleton() {
 }
 
 async function MiniBlogContent() {
-  const { blogs, paginationMeta, jwt } = await getMiniBlogData();
+  const { blogs, paginationMeta } = await getMiniBlogData();
 
   if (blogs.length === 0) {
     return (
@@ -76,7 +75,6 @@ async function MiniBlogContent() {
       <MiniBlogClient
         initialBlogs={blogs}
         paginationMeta={paginationMeta}
-        jwt={jwt}
       />
     </div>
   );

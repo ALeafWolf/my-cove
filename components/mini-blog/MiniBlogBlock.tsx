@@ -4,6 +4,8 @@ import { formatDate } from "@/utils/functions";
 import Image from "next/image";
 import Fancybox from "../Fancybox";
 
+const FANCYBOX_OPTIONS = { Carousel: { infinite: false } };
+
 interface Props {
   blog: MiniBlog;
 }
@@ -37,11 +39,7 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
       </Link> */}
       {media?.length == 1 && (
         <Fancybox
-          options={{
-            Carousel: {
-              infinite: false,
-            },
-          }}
+          options={FANCYBOX_OPTIONS}
           className="w-full"
         >
           <a
@@ -61,11 +59,7 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
       )}
       {media?.length > 1 && (
         <Fancybox
-          options={{
-            Carousel: {
-              infinite: false,
-            },
-          }}
+          options={FANCYBOX_OPTIONS}
           className="relative"
         >
           {/* Visible first image with count overlay */}
