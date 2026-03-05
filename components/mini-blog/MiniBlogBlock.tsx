@@ -8,8 +8,9 @@ const FANCYBOX_OPTIONS = { Carousel: { infinite: false } };
 
 interface Props {
   blog: MiniBlog;
+  imageLoading?: "eager" | "lazy";
 }
-const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
+const MiniBlogBlock: React.FC<Props> = ({ blog, imageLoading }) => {
   const user = blog?.attributes.user.data;
   const media = blog?.attributes.media.data;
   return (
@@ -34,9 +35,6 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
       {blog.attributes.content && (
         <p className="card-text">{blog.attributes.content}</p>
       )}
-      {/* <Link href={`/miniblog/${blog.id}`}>
-        <p className="btn btn-primary">Read More →</p>
-      </Link> */}
       {media?.length == 1 && (
         <Fancybox
           options={FANCYBOX_OPTIONS}
@@ -45,14 +43,15 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
           <a
             data-fancybox={`gallery-${blog.id}`}
             href={media[0].attributes.url}
-            className="block w-full aspect-square"
+            className="block w-full"
           >
             <Image
-              className="img-cover"
+              className="object-contain w-full h-full"
               src={media[0].attributes.url}
               alt={blog.attributes.title}
               width={300}
               height={300}
+              loading={imageLoading ?? "lazy"}
             />
           </a>
         </Fancybox>
@@ -69,13 +68,13 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
             className="relative block"
             aria-label={`Gallery for ${blog.attributes.title}, image 1 of ${media.length}`}
           >
-            <div
-              className="aspect-square bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${media[0].attributes.url})`,
-              }}
-              role="img"
-              aria-label={blog.attributes.title}
+            <Image
+              className="object-contain w-full h-auto"
+              src={media[0].attributes.url}
+              alt={blog.attributes.title}
+              width={300}
+              height={300}
+              loading={imageLoading ?? "lazy"}
             />
             {/* Image count overlay */}
             <div

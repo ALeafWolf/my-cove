@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { DreamMasonry } from "dream-masonry";
@@ -80,22 +80,52 @@ export default function MiniBlogClient({
   // After each render where containerWidth or blogs change, measure the hidden
   // cards at the exact column width DreamMasonry will use, then build items
   // with both width + height so DreamMasonry's positioner uses our measurements.
-  useLayoutEffect(() => {
+  // Uses useEffect (not useLayoutEffect) so we can wait for images to finish
+  // loading before snapshotting heights — next/image uses `aspect-ratio: auto`
+  // which reflows to the natural image dimensions only after load.
+  useEffect(() => {
     if (containerWidth === 0 || !measureRef.current || blogs.length === 0)
       return;
 
     const columnWidth = calcColumnWidth(containerWidth);
-    const children = measureRef.current.children;
 
-    const items: MasonryBlogItem[] = blogs.map((blog, i) => {
-      const el = children[i] as HTMLElement | undefined;
-      const height = el
-        ? Math.round(el.getBoundingClientRect().height)
-        : columnWidth;
-      return { id: String(blog.id), width: columnWidth, height, blog };
+    const doMeasure = () => {
+      if (!measureRef.current) return;
+      const children = measureRef.current.children;
+      const items: MasonryBlogItem[] = blogs.map((blog, i) => {
+        const el = children[i] as HTMLElement | undefined;
+        const height = el
+          ? Math.round(el.getBoundingClientRect().height)
+          : columnWidth;
+        return { id: String(blog.id), width: columnWidth, height, blog };
+      });
+      setMasonryItems(items);
+    };
+
+    const imgs = Array.from(
+      measureRef.current.querySelectorAll<HTMLImageElement>("img")
+    );
+    const pending = imgs.filter((img) => !img.complete);
+
+    if (pending.length === 0) {
+      doMeasure();
+      return;
+    }
+
+    let remaining = pending.length;
+    const onSettle = () => {
+      if (--remaining === 0) doMeasure();
+    };
+    pending.forEach((img) => {
+      img.addEventListener("load", onSettle);
+      img.addEventListener("error", onSettle);
     });
-
-    setMasonryItems(items);
+    return () => {
+      pending.forEach((img) => {
+        img.removeEventListener("load", onSettle);
+        img.removeEventListener("error", onSettle);
+      });
+    };
   }, [containerWidth, blogs]);
 
   const columnWidth = containerWidth > 0 ? calcColumnWidth(containerWidth) : 0;
@@ -146,7 +176,7 @@ export default function MiniBlogClient({
         >
           {blogs.map((blog) => (
             <div key={blog.id}>
-              <MiniBlogBlock blog={blog} />
+              <MiniBlogBlock blog={blog} imageLoading="eager" />
             </div>
           ))}
         </div>
