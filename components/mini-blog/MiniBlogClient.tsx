@@ -58,6 +58,10 @@ export default function MiniBlogClient({
   const [pageCount, setPageCount] = useState(paginationMeta?.pageCount ?? 1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const isFetchingRef = useRef(false);
+  const currentPageRef = useRef(currentPage);
+  const pageCountRef = useRef(pageCount);
+  currentPageRef.current = currentPage;
+  pageCountRef.current = pageCount;
   const hasMore = currentPage < pageCount;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -135,18 +139,25 @@ export default function MiniBlogClient({
     isFetchingRef.current = true;
     setIsFetchingMore(true);
     try {
-      const res = await loadMoreBlogs(currentPage + 1);
+      const nextPage = currentPageRef.current + 1;
+      const res = await loadMoreBlogs(nextPage);
       const newBlogs: MiniBlog[] = res.data || [];
+      const newCurrentPage = res.meta?.pagination?.page ?? nextPage;
+      const newPageCount = res.meta?.pagination?.pageCount ?? pageCountRef.current;
+      // Update refs immediately so any scroll event that fires before the
+      // next render sees the correct page values, preventing duplicate fetches.
+      currentPageRef.current = newCurrentPage;
+      pageCountRef.current = newPageCount;
       setBlogs((prev) => [...prev, ...newBlogs]);
-      setCurrentPage(res.meta?.pagination?.page ?? currentPage + 1);
-      setPageCount(res.meta?.pagination?.pageCount ?? pageCount);
+      setCurrentPage(newCurrentPage);
+      setPageCount(newPageCount);
     } catch (err) {
       console.error("Error loading more mini blogs:", err);
     } finally {
       isFetchingRef.current = false;
       setIsFetchingMore(false);
     }
-  }, [hasMore, currentPage, pageCount]);
+  }, [hasMore]);
 
   const addNewBlog = useCallback((blog: MiniBlog) => {
     setBlogs((prev) => [blog, ...prev]);

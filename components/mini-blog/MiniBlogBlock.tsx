@@ -1,5 +1,5 @@
 import { MiniBlog } from "@/utils/types";
-import React from "react";
+import React, { memo } from "react";
 import { formatDate } from "@/utils/functions";
 import Image from "next/image";
 import Fancybox from "../Fancybox";
@@ -10,7 +10,7 @@ interface Props {
   blog: MiniBlog;
   imageLoading?: "eager" | "lazy";
 }
-const MiniBlogBlock: React.FC<Props> = ({ blog, imageLoading }) => {
+const MiniBlogBlock: React.FC<Props> = memo(({ blog, imageLoading }) => {
   const user = blog?.attributes.user.data;
   const media = blog?.attributes.media.data;
   return (
@@ -35,7 +35,7 @@ const MiniBlogBlock: React.FC<Props> = ({ blog, imageLoading }) => {
       {blog.attributes.content && (
         <p className="card-text">{blog.attributes.content}</p>
       )}
-      {media?.length == 1 && (
+      {media?.length === 1 ? (
         <Fancybox
           options={FANCYBOX_OPTIONS}
           className="w-full"
@@ -55,8 +55,8 @@ const MiniBlogBlock: React.FC<Props> = ({ blog, imageLoading }) => {
             />
           </a>
         </Fancybox>
-      )}
-      {media?.length > 1 && (
+      ) : null}
+      {media?.length > 1 ? (
         <Fancybox
           options={FANCYBOX_OPTIONS}
           className="relative"
@@ -98,9 +98,11 @@ const MiniBlogBlock: React.FC<Props> = ({ blog, imageLoading }) => {
             </a>
           ))}
         </Fancybox>
-      )}
+      ) : null}
     </div>
   );
-};
+});
+
+MiniBlogBlock.displayName = "MiniBlogBlock";
 
 export default MiniBlogBlock;

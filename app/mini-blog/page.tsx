@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { auth } from "@/auth";
 import { get } from "@/utils/functions";
 import GeneralHeader from "@/components/general/HeaderSection";
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 
-async function getMiniBlogData() {
+const getMiniBlogData = cache(async () => {
   const session = await auth();
 
   if (!session) {
@@ -39,25 +39,23 @@ async function getMiniBlogData() {
     console.error("Error fetching mini blogs:", error);
     return { blogs: [] };
   }
-}
+});
 
 const SKELETON_HEIGHTS = [180, 280, 200, 320, 160, 240];
 
-function MiniBlogSkeleton() {
-  return (
-    <div className="content-container mx-auto">
-      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
-        {SKELETON_HEIGHTS.map((h, i) => (
-          <div
-            key={i}
-            className="border rounded animate-pulse bg-gray-800 mb-4 break-inside-avoid"
-            style={{ height: h }}
-          />
-        ))}
-      </div>
+const MINI_BLOG_SKELETON = (
+  <div className="content-container mx-auto">
+    <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+      {SKELETON_HEIGHTS.map((h, i) => (
+        <div
+          key={i}
+          className="border rounded animate-pulse bg-gray-800 mb-4 break-inside-avoid"
+          style={{ height: h }}
+        />
+      ))}
     </div>
-  );
-}
+  </div>
+);
 
 async function MiniBlogContent() {
   const { blogs, paginationMeta } = await getMiniBlogData();
@@ -84,7 +82,7 @@ export default function MiniBlogPage() {
   return (
     <div>
       <GeneralHeader />
-      <Suspense fallback={<MiniBlogSkeleton />}>
+      <Suspense fallback={MINI_BLOG_SKELETON}>
         <MiniBlogContent />
       </Suspense>
     </div>

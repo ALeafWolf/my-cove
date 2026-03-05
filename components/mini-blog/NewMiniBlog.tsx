@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useTransition } from "react";
 import { MiniBlog } from "@/utils/types";
 import { createBlog } from "@/app/actions/mini-blog";
 
@@ -17,16 +17,16 @@ export default function NewMiniBlog({
 }: NewMiniBlogProps) {
   const [content, setContent] = useState<string>("");
   const [title, setTitle] = useState<string>("");
-  const [isPending, setIsPending] = useState<boolean>(false);
+  const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const closeModal = useCallback(() => setNewBlog(false), [setNewBlog]);
 
   // Disable page scroll when modal is open
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    document.body.classList.add("overflow-hidden");
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.classList.remove("overflow-hidden");
     };
   }, []);
 
@@ -43,35 +43,34 @@ export default function NewMiniBlog({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!content || !title) return;
-    setIsPending(true);
 
-    try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("content", content);
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("content", content);
 
-      if (fileRef.current?.files?.length) {
-        Array.from(fileRef.current.files).forEach((file) => {
-          formData.append("files.media", file);
-        });
+        if (fileRef.current?.files?.length) {
+          Array.from(fileRef.current.files).forEach((file) => {
+            formData.append("files.media", file);
+          });
+        }
+
+        const blog = await createBlog(formData);
+
+        if (onBlogCreated) {
+          onBlogCreated(blog);
+        }
+
+        setNewBlog(false);
+      } catch (error) {
+        console.error("Error creating miniblog:", error);
       }
-
-      const blog = await createBlog(formData);
-
-      if (onBlogCreated) {
-        onBlogCreated(blog);
-      }
-
-      setNewBlog(false);
-    } catch (error) {
-      console.error("Error creating miniblog:", error);
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (

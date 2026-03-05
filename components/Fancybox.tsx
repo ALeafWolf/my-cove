@@ -26,7 +26,7 @@ function Fancybox(props: {
       NativeFancybox.unbind(container);
       NativeFancybox.close();
     };
-  });
+  }, [props.delegate, props.options]);
 
   return (
     <div className={props.className} ref={containerRef}>
