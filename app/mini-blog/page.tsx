@@ -4,11 +4,13 @@ import { get } from "@/utils/functions";
 import GeneralHeader from "@/components/general/HeaderSection";
 import MiniBlogClient from "@/components/mini-blog/MiniBlogClient";
 import { Metadata } from "next";
+import { MINI_BLOG_POPULATE, PAGE_SIZE } from "@/utils/constants";
 
 export const metadata: Metadata = {
   title: "Miniblog | My Cove",
   description: "Short thoughts and updates",
 };
+
 
 async function getMiniBlogData() {
   const session = await auth();
@@ -23,25 +25,15 @@ async function getMiniBlogData() {
         Authorization: `Bearer ${session.jwt}`,
       },
       params: {
-        populate: {
-          media: {
-            fields: "url",
-          },
-          user: {
-            fields: "username",
-            populate: {
-              thumbnail: {
-                fields: "url",
-              },
-            },
-          },
-        },
+        populate: MINI_BLOG_POPULATE,
         sort: ["id:desc"],
+        pagination: { page: 1, pageSize: PAGE_SIZE },
       },
     });
 
     return {
       blogs: res.data || [],
+      paginationMeta: res.meta?.pagination ?? null,
       jwt: session.jwt,
     };
   } catch (error) {
@@ -50,14 +42,17 @@ async function getMiniBlogData() {
   }
 }
 
+const SKELETON_HEIGHTS = [180, 280, 200, 320, 160, 240];
+
 function MiniBlogSkeleton() {
   return (
     <div className="content-container mx-auto">
-      <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
-        {[1, 2].map((i) => (
+      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
+        {SKELETON_HEIGHTS.map((h, i) => (
           <div
             key={i}
-            className="border p-4 rounded animate-pulse h-40 bg-gray-800"
+            className="border rounded animate-pulse bg-gray-800 mb-4 break-inside-avoid"
+            style={{ height: h }}
           />
         ))}
       </div>
@@ -66,7 +61,7 @@ function MiniBlogSkeleton() {
 }
 
 async function MiniBlogContent() {
-  const { blogs, jwt } = await getMiniBlogData();
+  const { blogs, paginationMeta, jwt } = await getMiniBlogData();
 
   if (blogs.length === 0) {
     return (
@@ -78,7 +73,11 @@ async function MiniBlogContent() {
 
   return (
     <div className="content-container mx-auto">
-      <MiniBlogClient initialBlogs={blogs} jwt={jwt} />
+      <MiniBlogClient
+        initialBlogs={blogs}
+        paginationMeta={paginationMeta}
+        jwt={jwt}
+      />
     </div>
   );
 }
