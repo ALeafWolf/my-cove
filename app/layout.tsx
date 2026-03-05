@@ -13,6 +13,7 @@ const GA_ID = process.env.PUBLIC_GA_ID;
 export const metadata: Metadata = {
   title: "The ZZZ Cove",
   description: "Welcome to The ZZZ Cove",
+  manifest: "/site.webmanifest",
 };
 
 export const viewport: Viewport = {
