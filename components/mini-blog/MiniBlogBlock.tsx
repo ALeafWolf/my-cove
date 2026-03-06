@@ -1,13 +1,16 @@
 import { MiniBlog } from "@/utils/types";
-import React from "react";
+import React, { memo } from "react";
 import { formatDate } from "@/utils/functions";
 import Image from "next/image";
 import Fancybox from "../Fancybox";
 
+const FANCYBOX_OPTIONS = { Carousel: { infinite: false } };
+
 interface Props {
   blog: MiniBlog;
+  imageLoading?: "eager" | "lazy";
 }
-const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
+const MiniBlogBlock: React.FC<Props> = memo(({ blog, imageLoading }) => {
   const user = blog?.attributes.user.data;
   const media = blog?.attributes.media.data;
   return (
@@ -32,40 +35,30 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
       {blog.attributes.content && (
         <p className="card-text">{blog.attributes.content}</p>
       )}
-      {/* <Link href={`/miniblog/${blog.id}`}>
-        <p className="btn btn-primary">Read More →</p>
-      </Link> */}
-      {media?.length == 1 && (
+      {media?.length === 1 ? (
         <Fancybox
-          options={{
-            Carousel: {
-              infinite: false,
-            },
-          }}
+          options={FANCYBOX_OPTIONS}
           className="w-full"
         >
           <a
             data-fancybox={`gallery-${blog.id}`}
             href={media[0].attributes.url}
-            className="block w-full aspect-square"
+            className="block w-full"
           >
             <Image
-              className="img-cover"
+              className="object-contain w-full h-full"
               src={media[0].attributes.url}
               alt={blog.attributes.title}
               width={300}
               height={300}
+              loading={imageLoading ?? "lazy"}
             />
           </a>
         </Fancybox>
-      )}
-      {media?.length > 1 && (
+      ) : null}
+      {media?.length > 1 ? (
         <Fancybox
-          options={{
-            Carousel: {
-              infinite: false,
-            },
-          }}
+          options={FANCYBOX_OPTIONS}
           className="relative"
         >
           {/* Visible first image with count overlay */}
@@ -75,13 +68,13 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
             className="relative block"
             aria-label={`Gallery for ${blog.attributes.title}, image 1 of ${media.length}`}
           >
-            <div
-              className="aspect-square bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${media[0].attributes.url})`,
-              }}
-              role="img"
-              aria-label={blog.attributes.title}
+            <Image
+              className="object-contain w-full h-auto"
+              src={media[0].attributes.url}
+              alt={blog.attributes.title}
+              width={300}
+              height={300}
+              loading={imageLoading ?? "lazy"}
             />
             {/* Image count overlay */}
             <div
@@ -105,9 +98,11 @@ const MiniBlogBlock: React.FC<Props> = ({ blog }) => {
             </a>
           ))}
         </Fancybox>
-      )}
+      ) : null}
     </div>
   );
-};
+});
+
+MiniBlogBlock.displayName = "MiniBlogBlock";
 
 export default MiniBlogBlock;
