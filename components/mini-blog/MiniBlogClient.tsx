@@ -1,14 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { DreamMasonry } from "dream-masonry";
 import MiniBlogBlock from "./MiniBlogBlock";
 import { MiniBlog } from "@/utils/types";
 import { loadMoreBlogs } from "@/app/actions/mini-blog";
 
-const NewMiniBlog = dynamic(() => import("./NewMiniBlog"));
+const NewMiniBlog = dynamic(() => import("./NewMiniBlog"), { ssr: false });
 
 interface PaginationMeta {
   page: number;
@@ -20,6 +19,7 @@ interface PaginationMeta {
 interface MiniBlogClientProps {
   initialBlogs: MiniBlog[];
   paginationMeta?: PaginationMeta | null;
+  isAuthenticated?: boolean;
 }
 
 // Mirror DreamMasonry's column layout constants
@@ -50,10 +50,12 @@ type MasonryBlogItem = {
 export default function MiniBlogClient({
   initialBlogs,
   paginationMeta,
+  isAuthenticated = false,
 }: MiniBlogClientProps) {
-  const { data: session } = useSession();
   const [blogs, setBlogs] = useState<MiniBlog[]>(initialBlogs);
   const [newBlog, setNewBlog] = useState<boolean>(false);
+  const [draftTitle, setDraftTitle] = useState<string>("");
+  const [draftContent, setDraftContent] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(paginationMeta?.page ?? 1);
   const [pageCount, setPageCount] = useState(paginationMeta?.pageCount ?? 1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -161,6 +163,13 @@ export default function MiniBlogClient({
 
   const addNewBlog = useCallback((blog: MiniBlog) => {
     setBlogs((prev) => [blog, ...prev]);
+    setDraftTitle("");
+    setDraftContent("");
+  }, []);
+
+  const onDraftChange = useCallback((title: string, content: string) => {
+    setDraftTitle(title);
+    setDraftContent(content);
   }, []);
 
   return (
@@ -224,10 +233,13 @@ export default function MiniBlogClient({
         +
       </button>
 
-      {newBlog && session?.user && (
+      {newBlog && isAuthenticated && (
         <NewMiniBlog
           setNewBlog={setNewBlog}
           onBlogCreated={addNewBlog}
+          initialTitle={draftTitle}
+          initialContent={draftContent}
+          onDraftChange={onDraftChange}
         />
       )}
     </>

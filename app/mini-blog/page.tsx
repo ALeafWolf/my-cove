@@ -73,6 +73,7 @@ async function MiniBlogContent() {
       <MiniBlogClient
         initialBlogs={blogs}
         paginationMeta={paginationMeta}
+        isAuthenticated={true}
       />
     </div>
   );
