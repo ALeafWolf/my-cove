@@ -17,6 +17,7 @@ export default function NewMiniBlog({
 }: NewMiniBlogProps) {
   const [content, setContent] = useState<string>("");
   const [title, setTitle] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [isPending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +50,7 @@ export default function NewMiniBlog({
     if (!content || !title) return;
 
     startTransition(async () => {
+      setErrorMessage("");
       try {
         const formData = new FormData();
         formData.append("title", title);
@@ -69,6 +71,7 @@ export default function NewMiniBlog({
         setNewBlog(false);
       } catch (error) {
         console.error("Error creating miniblog:", error);
+        setErrorMessage(error instanceof Error ? error.message : String(error));
       }
     });
   };
@@ -144,6 +147,9 @@ export default function NewMiniBlog({
               {isPending ? "发送中…" : "发送"}
             </button>
           </div>
+          {errorMessage && (
+            <p className="text-red-400 text-sm mt-2">{errorMessage}</p>
+          )}
         </form>
       </div>
     </div>
