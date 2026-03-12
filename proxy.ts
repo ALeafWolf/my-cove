@@ -15,6 +15,19 @@ async function isDraftPost(postId: string): Promise<boolean> {
   }
 }
 
+async function isDraftCollection(collectionId: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `${apiUrl}/api/post-collections/${collectionId}?fields=publishedAt`
+    );
+    if (!res.ok) return true;
+    const { data } = await res.json();
+    return data?.attributes?.publishedAt === null;
+  } catch {
+    return true;
+  }
+}
+
 export default auth(async (req) => {
   const isAuthenticated = !!req.auth;
   const { pathname } = req.nextUrl;
@@ -27,6 +40,14 @@ export default auth(async (req) => {
     const postMatch = pathname.match(/^\/post\/(\d+)$/);
     if (postMatch) {
       const isDraft = await isDraftPost(postMatch[1]);
+      if (isDraft) {
+        return NextResponse.redirect(new URL("/not-found", req.url));
+      }
+    }
+
+    const collectionMatch = pathname.match(/^\/post\/collection\/(\d+)$/);
+    if (collectionMatch) {
+      const isDraft = await isDraftCollection(collectionMatch[1]);
       if (isDraft) {
         return NextResponse.redirect(new URL("/not-found", req.url));
       }
