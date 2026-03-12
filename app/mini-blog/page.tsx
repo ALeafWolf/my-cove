@@ -7,8 +7,8 @@ import { Metadata } from "next";
 import { MINI_BLOG_POPULATE, PAGE_SIZE } from "@/utils/constants";
 
 export const metadata: Metadata = {
-  title: "Miniblog | My Cove",
-  description: "Short thoughts and updates",
+  title: "碎碎念 | 眠洞",
+  description: "嘴碎中。。。",
 };
 
 
@@ -73,6 +73,7 @@ async function MiniBlogContent() {
       <MiniBlogClient
         initialBlogs={blogs}
         paginationMeta={paginationMeta}
+        isAuthenticated={true}
       />
     </div>
   );

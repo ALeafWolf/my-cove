@@ -11,8 +11,8 @@ import NavigationEvents from "@/components/NavigationEvents";
 const GA_ID = process.env.PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
-  title: "The ZZZ Cove",
-  description: "Welcome to The ZZZ Cove",
+  title: "眠洞",
+  description: "屯放各种脑洞之地",
   manifest: "/site.webmanifest",
 };
 

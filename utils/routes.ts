@@ -6,8 +6,8 @@ export interface NavLink {
 }
 
 export const navLinks: NavLink[] = [
-  { href: "/post", label: "Post" },
-  { href: "/mini-blog", label: "Miniblog" },
+  { href: "/post", label: "思绪" },
+  { href: "/mini-blog", label: "碎碎念" },
 ];
 
 export function isPublicPath(pathname: string): boolean {

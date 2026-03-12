@@ -50,7 +50,7 @@ export default function AuthStatus() {
               className="border px-4 py-2 rounded-md text-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none"
               onClick={handleLogout}
             >
-              {confirmLogout ? "Confirm Logout" : "Logout"}
+              {confirmLogout ? "确定登出？" : "登出"}
             </button>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function AuthStatus() {
               className="block text-lg border px-4 py-2 rounded-md focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none"
               href="/login"
             >
-              Login
+              登录
             </Link>
           </div>
         </div>
