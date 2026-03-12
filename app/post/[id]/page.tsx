@@ -81,7 +81,7 @@ export async function generateMetadata({ params }: PostDetailProps) {
   const post = await getPost(id, session?.jwt);
 
   return {
-    title: `${post?.attributes.title || "Post Not Found"} | My Cove`,
+    title: `${post?.attributes.title || "思绪"} | 眠洞`,
     description: post?.attributes.summary || "",
   };
 }

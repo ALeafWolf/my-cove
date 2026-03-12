@@ -6,6 +6,12 @@ import { Post } from "@/utils/types";
 import GeneralHeader from "@/components/general/HeaderSection";
 import { get, formatDate, getPostThumbnailUrl } from "@/utils/functions";
 import type { Session } from "next-auth";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "思绪 | 眠洞",
+  description: "思绪万千。。。",
+};
 
 export const revalidate = 3600;
 
