@@ -36,6 +36,7 @@ type PostAttributes = {
   };
   createdAt: string;
   updatedAt: string;
+  publishedAt?: string;
 };
 type ImageAttributes = {
   url: string;
