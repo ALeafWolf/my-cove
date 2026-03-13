@@ -60,7 +60,9 @@ function CollectionGridSkeleton() {
 
 async function CollectionGrid({ session }: { session: Session | null }) {
   const collections = await getCollections(session);
-  const collectionsArray = Array.isArray(collections) ? collections : [];
+  const collectionsArray = (Array.isArray(collections) ? collections : []).filter(
+    (c: Collection) => (c.attributes.posts?.data?.length ?? 0) > 0
+  );
 
   if (collectionsArray.length === 0) {
     return (
