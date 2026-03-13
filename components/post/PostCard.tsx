@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Post } from "@/utils/types";
 import { formatDate, getPostThumbnailUrl } from "@/utils/functions";
+import DraftLabel from "@/components/general/DraftLabel";
 
 const PostCard = ({ post }: { post: Post }) => {
   const thumbUrl = getPostThumbnailUrl(post);
+  const isDraft = !post.attributes.publishedAt;
   return (
     <Link
       href={`/post/${post.id}`}
@@ -25,6 +27,7 @@ const PostCard = ({ post }: { post: Post }) => {
             aria-label={`Thumbnail for ${post.attributes.title}`}
           />
         )}
+        {isDraft && <DraftLabel />}
       </div>
       <div className="p-4 flex-1 flex flex-col">
         <h5 className="text-lg font-semibold mb-2">{post.attributes.title}</h5>
