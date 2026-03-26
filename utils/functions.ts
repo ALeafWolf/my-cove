@@ -2,7 +2,7 @@ import axios from "axios";
 import { Post } from "./types";
 import qs from "qs";
 
-const apiUrl = process.env.API_URL || "https://cms.thezzzcove.com";
+const apiUrl = process.env.API_URL || "http://localhost:1337";
 
 // Add this interface
 interface RequestOptions {

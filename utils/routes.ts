@@ -1,4 +1,4 @@
-export const publicPaths = ["/", "/login", "/post", "/not-found"];
+export const publicPaths = ["/", "/login", "/post", "/not-found", "/search"];
 
 export interface NavLink {
   href: string;
@@ -7,7 +7,7 @@ export interface NavLink {
 
 export const navLinks: NavLink[] = [
   { href: "/post", label: "思绪" },
-  { href: "/mini-blog", label: "碎碎念" },
+  { href: "/mini-blog", label: "碎碎念" }
 ];
 
 export function isPublicPath(pathname: string): boolean {
