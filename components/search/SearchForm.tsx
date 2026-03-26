@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type SubmitEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SearchForm() {
@@ -13,7 +13,7 @@ export default function SearchForm() {
     setSearchTerm(qFromUrl);
   }, [qFromUrl]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmed = searchTerm.trim();
     if (trimmed) {
@@ -28,13 +28,16 @@ export default function SearchForm() {
       <input
         type="text"
         value={searchTerm}
+        autoFocus
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="搜索文章..."
+        placeholder="搜索..."
+        aria-label="Search Query Input"
         className="flex-1 px-4 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
       />
       <button
         type="submit"
-        className="px-4 py-2 border rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-500"
+        className="px-4 py-2 border rounded-md hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500"
+        aria-label="Search"
       >
         搜索
       </button>

@@ -7,6 +7,38 @@ import { get, parseToSingleArray } from "@/utils/functions";
 import { auth } from "@/auth";
 import type { Session } from "next-auth";
 import SearchForm from "@/components/search/SearchForm";
+import { aiSearch, AIParsedQuery } from "@/lib/ai-search";
+
+function AIParsedSummary({ parsed }: { parsed: AIParsedQuery }) {
+  const chips: string[] = [];
+  if (parsed.titleKeywords.length > 0)
+    chips.push(`标题含: ${parsed.titleKeywords.join(", ")}`);
+  if (parsed.contentKeywords.length > 0)
+    chips.push(`内容含: ${parsed.contentKeywords.join(", ")}`);
+  if (parsed.categories.length > 0)
+    chips.push(`类别: ${parsed.categories.join(", ")}`);
+  if (parsed.tags.length > 0)
+    chips.push(`标签: ${parsed.tags.join(", ")}`);
+  if (parsed.collection)
+    chips.push(`合集: ${parsed.collection}`);
+
+  if (chips.length === 0) return null;
+
+  return (
+    <div className="mt-2 mb-1 flex flex-wrap gap-1.5 text-xs">
+      <span className="text-gray-400">AI 理解:</span>
+      {chips.map((chip) => (
+        <span
+          key={chip}
+          className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+        >
+          {chip}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 
 function SearchFormFallback() {
   return (
@@ -32,7 +64,12 @@ async function getFilteredPosts(
     q?: string | string[];
   },
   session: Session | null
-) {
+): Promise<{
+  posts: Post[];
+  searchType: string | null;
+  searchValue: string | null;
+  aiParsed?: AIParsedQuery;
+}> {
   const category = parseToSingleArray(searchParams.category);
   const tag = parseToSingleArray(searchParams.tag);
   const q = parseToSingleArray(searchParams.q);
@@ -47,52 +84,42 @@ async function getFilteredPosts(
     : null;
 
   const isAuthenticated = !!session?.user;
+  const jwt = isAuthenticated ? session!.jwt : undefined;
 
   try {
-    const filters: any = {};
+    if (searchType === "q" && searchValue) {
+      const { posts, aiParsed } = await aiSearch(searchValue, jwt);
+      return { posts, searchType, searchValue, aiParsed };
+    }
+
+    const filters: Record<string, unknown> = {};
     if (searchType === "category") {
       filters.categories = { name: { $eq: searchValue } };
     } else if (searchType === "tag") {
       filters.tags = { name: { $eq: searchValue } };
-    } else if (searchType === "q") {
-      filters.title = { $containsi: searchValue };
     }
 
     const res = await get("/posts", {
       ...(isAuthenticated && {
-        headers: { Authorization: `Bearer ${session!.jwt}` },
+        headers: { Authorization: `Bearer ${jwt}` },
       }),
       params: {
         ...(Object.keys(filters).length > 0 && { filters }),
         ...(isAuthenticated && { publicationState: "preview" }),
         populate: {
-          thumbnail: {
-            fields: "url",
-          },
-          categories: {
-            fields: "name",
-          },
-          tags: {
-            fields: "name",
-          },
+          thumbnail: { fields: "url" },
+          categories: { fields: "name" },
+          tags: { fields: "name" },
           collection: {
             fields: "name",
-            populate: {
-              header_image: {
-                fields: "url",
-              },
-            },
+            populate: { header_image: { fields: "url" } },
           },
         },
         sort: ["id:desc"],
       },
     });
 
-    return {
-      posts: res.data || [],
-      searchType,
-      searchValue,
-    };
+    return { posts: res.data ?? [], searchType, searchValue };
   } catch (error) {
     console.error("Error fetching filtered posts:", error);
     return { posts: [], searchType, searchValue };
@@ -104,36 +131,23 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     auth(),
     searchParams,
   ]);
-  const { posts, searchType, searchValue } = await getFilteredPosts(
+  const { posts, searchType, searchValue, aiParsed } = await getFilteredPosts(
     resolvedSearchParams,
     session
   );
   const postsArray = Array.isArray(posts) ? posts : [];
-
-  const getSearchTitle = () => {
-    if (!searchType || !searchValue) return "所有文章";
-    if (searchType === "category") return `类别: ${searchValue}`;
-    if (searchType === "tag") return `标签: ${searchValue}`;
-    return `搜索: ${searchValue}`;
-  };
 
   return (
     <div>
       <GeneralHeader />
       <div className="content-container mx-auto">
         <div className="mb-6">
-          <Link
-            href="/post"
-            className="inline-flex items-center gap-2 px-4 py-2 border rounded-md mb-4 hover:bg-gray-50"
-          >
-            ← 返回所有文章
-          </Link>
-
           <Suspense fallback={<SearchFormFallback />}>
             <SearchForm />
           </Suspense>
-
-          <h1 className="text-2xl font-bold">{getSearchTitle()}</h1>
+          {aiParsed && (
+            <AIParsedSummary parsed={aiParsed} />
+          )}
           {postsArray.length > 0 && (
             <p className="text-gray-600 mt-2">找到 {postsArray.length} 篇文章</p>
           )}
@@ -155,7 +169,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             )}
           </div>
         ) : (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 py-6">
             {postsArray.map((post: Post) => (
               <PostCard key={post.id} post={post} />
             ))}
