@@ -2,20 +2,28 @@
 
 import { useState, useEffect, type SubmitEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLoading } from "@/components/LoadingProvider";
 
-export default function SearchForm() {
-  const searchParams = useSearchParams();
-  const qFromUrl = searchParams.get("q") ?? "";
-  const [searchTerm, setSearchTerm] = useState(qFromUrl);
+function SearchFormInner({
+  qFromUrl,
+  defaultValue,
+}: {
+  qFromUrl: string;
+  defaultValue: string;
+}) {
+  const [searchTerm, setSearchTerm] = useState(defaultValue);
   const router = useRouter();
+  const { setIsLoading } = useLoading();
 
+  // Clear the loading overlay once navigation has settled (syncing external state)
   useEffect(() => {
-    setSearchTerm(qFromUrl);
-  }, [qFromUrl]);
+    setIsLoading(false);
+  }, [qFromUrl, setIsLoading]);
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmed = searchTerm.trim();
+    setIsLoading(true);
     if (trimmed) {
       router.push(`/search?q=${encodeURIComponent(trimmed)}`);
     } else {
@@ -43,4 +51,11 @@ export default function SearchForm() {
       </button>
     </form>
   );
+}
+
+export default function SearchForm() {
+  const searchParams = useSearchParams();
+  const qFromUrl = searchParams.get("q") ?? "";
+  // key resets SearchFormInner state on every URL change without render-phase setState
+  return <SearchFormInner key={qFromUrl} qFromUrl={qFromUrl} defaultValue={qFromUrl} />;
 }

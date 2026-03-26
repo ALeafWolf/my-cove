@@ -9,6 +9,13 @@ import type { Session } from "next-auth";
 import SearchForm from "@/components/search/SearchForm";
 import { aiSearch, AIParsedQuery } from "@/lib/ai-search";
 
+const SORT_FIELD_LABELS: Record<string, string> = {
+  publishedAt: "发布时间",
+  createdAt: "创建时间",
+  title: "标题",
+  id: "ID",
+};
+
 function AIParsedSummary({ parsed }: { parsed: AIParsedQuery }) {
   const chips: string[] = [];
   if (parsed.titleKeywords.length > 0)
@@ -21,6 +28,8 @@ function AIParsedSummary({ parsed }: { parsed: AIParsedQuery }) {
     chips.push(`标签: ${parsed.tags.join(", ")}`);
   if (parsed.collection)
     chips.push(`合集: ${parsed.collection}`);
+  const sortLabel = `${SORT_FIELD_LABELS[parsed.sortField] ?? parsed.sortField} ${parsed.sortOrder === "asc" ? "↑" : "↓"}`;
+  chips.push(`排序: ${sortLabel}`);
 
   if (chips.length === 0) return null;
 
@@ -69,6 +78,7 @@ async function getFilteredPosts(
   searchType: string | null;
   searchValue: string | null;
   aiParsed?: AIParsedQuery;
+  error?: string;
 }> {
   const category = parseToSingleArray(searchParams.category);
   const tag = parseToSingleArray(searchParams.tag);
@@ -78,20 +88,30 @@ async function getFilteredPosts(
   const searchValue = category
     ? category[0]
     : tag
-    ? tag[0]
-    : q
-    ? q[0]
-    : null;
+      ? tag[0]
+      : q
+        ? q[0]
+        : null;
 
   const isAuthenticated = !!session?.user;
   const jwt = isAuthenticated ? session!.jwt : undefined;
 
-  try {
-    if (searchType === "q" && searchValue) {
+  if (searchType === "q" && searchValue) {
+    try {
       const { posts, aiParsed } = await aiSearch(searchValue, jwt);
       return { posts, searchType, searchValue, aiParsed };
+    } catch (error) {
+      console.error("AI search error:", error);
+      return {
+        posts: [],
+        searchType,
+        searchValue,
+        error: error instanceof Error ? error.message : "AI 搜索失败，请稍后再试。",
+      };
     }
+  }
 
+  try {
     const filters: Record<string, unknown> = {};
     if (searchType === "category") {
       filters.categories = { name: { $eq: searchValue } };
@@ -111,7 +131,7 @@ async function getFilteredPosts(
           categories: { fields: "name" },
           tags: { fields: "name" },
           collection: {
-            fields: "name",
+            fields: "title",
             populate: { header_image: { fields: "url" } },
           },
         },
@@ -122,7 +142,7 @@ async function getFilteredPosts(
     return { posts: res.data ?? [], searchType, searchValue };
   } catch (error) {
     console.error("Error fetching filtered posts:", error);
-    return { posts: [], searchType, searchValue };
+    return { posts: [], searchType, searchValue, error: "获取文章失败，请稍后再试。" };
   }
 }
 
@@ -131,7 +151,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     auth(),
     searchParams,
   ]);
-  const { posts, searchType, searchValue, aiParsed } = await getFilteredPosts(
+  const { posts, searchType, searchValue, aiParsed, error } = await getFilteredPosts(
     resolvedSearchParams,
     session
   );
@@ -153,7 +173,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           )}
         </div>
 
-        {postsArray.length === 0 ? (
+        {error ? (
+          <div className="p-8 border border-dashed border-red-300 text-center rounded-lg">
+            <p className="text-red-500 text-lg">{error}</p>
+          </div>
+        ) : postsArray.length === 0 ? (
           <div className="p-8 border border-dashed border-gray-300 text-center rounded-lg">
             <p className="text-gray-500 text-lg">未找到相关文章</p>
             {searchValue && (
@@ -162,8 +186,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 {searchType === "category"
                   ? "类别"
                   : searchType === "tag"
-                  ? "标签"
-                  : "关键词"}
+                    ? "标签"
+                    : "关键词"}
                 为 &quot;{searchValue}&quot; 的文章
               </p>
             )}

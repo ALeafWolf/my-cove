@@ -94,7 +94,7 @@ const POPULATE = {
   categories: { fields: "name" },
   tags: { fields: "name" },
   collection: {
-    fields: "name",
+    fields: "title",
     populate: { header_image: { fields: "url" } },
   },
 };
@@ -118,15 +118,21 @@ function buildStrapiFilters(parsed: AIParsedQuery): Record<string, unknown> {
   }
 
   if (parsed.categories.length > 0) {
-    conditions.push({ categories: { name: { $in: parsed.categories } } });
+    const catClauses = parsed.categories.map((c) => ({
+      categories: { name: { $containsi: c } },
+    }));
+    conditions.push(catClauses.length === 1 ? catClauses[0] : { $or: catClauses });
   }
 
   if (parsed.tags.length > 0) {
-    conditions.push({ tags: { name: { $in: parsed.tags } } });
+    const tagClauses = parsed.tags.map((t) => ({
+      tags: { name: { $containsi: t } },
+    }));
+    conditions.push(tagClauses.length === 1 ? tagClauses[0] : { $or: tagClauses });
   }
 
   if (parsed.collection) {
-    conditions.push({ collection: { name: { $containsi: parsed.collection } } });
+    conditions.push({ collection: { title: { $containsi: parsed.collection } } });
   }
 
   if (conditions.length === 0) return {};
@@ -158,31 +164,52 @@ export async function aiSearch(
   query: string,
   jwt?: string
 ): Promise<{ posts: Post[]; aiParsed: AIParsedQuery }> {
-  const response = await openai.responses.create({
-    model: "gpt-4o-mini",
-    input: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: query },
-    ],
-    text: {
-      format: AI_SEARCH_TEXT_FORMAT,
-    },
-  });
+  let response: Awaited<ReturnType<typeof openai.responses.create>>;
+  try {
+    response = await openai.responses.create({
+      model: "gpt-4o-mini",
+      input: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: query },
+      ],
+      text: {
+        format: AI_SEARCH_TEXT_FORMAT,
+      },
+    });
+  } catch (err) {
+    throw new Error(
+      `AI 服务请求失败：${err instanceof Error ? err.message : "未知错误"}`
+    );
+  }
 
-  const aiParsed: AIParsedQuery = JSON.parse(response.output_text);
+  let aiParsed: AIParsedQuery;
+  try {
+    aiParsed = JSON.parse(response.output_text) as AIParsedQuery;
+  } catch {
+    throw new Error("AI 返回的内容格式无效，请重试。");
+  }
 
   const filters = buildStrapiFilters(aiParsed);
   const sort = `${aiParsed.sortField}:${aiParsed.sortOrder}`;
 
-  const res = await get("/posts", {
-    ...(jwt && { headers: { Authorization: `Bearer ${jwt}` } }),
-    params: {
-      ...(Object.keys(filters).length > 0 && { filters }),
-      ...(jwt && { publicationState: "preview" }),
-      populate: POPULATE,
-      sort: [sort],
-    },
-  });
+  const params = {
+    ...(Object.keys(filters).length > 0 && { filters }),
+    ...(jwt && { publicationState: "preview" }),
+    populate: POPULATE,
+    sort: [sort],
+  };
+
+  let res: Awaited<ReturnType<typeof get>>;
+  try {
+    res = await get("/posts", {
+      ...(jwt && { headers: { Authorization: `Bearer ${jwt}` } }),
+      params,
+    });
+  } catch (err) {
+    throw new Error(
+      `文章列表获取失败：${err instanceof Error ? err.message : "未知错误"}`
+    );
+  }
 
   const posts: Post[] = res.data ?? [];
   return { posts: rerankPosts(posts, aiParsed), aiParsed };

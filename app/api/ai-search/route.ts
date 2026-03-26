@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { aiSearch } from "@/lib/ai-search";
 
 export async function POST(req: NextRequest) {
@@ -9,8 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { query, jwt } =
-    (body as { query?: unknown; jwt?: unknown }) ?? {};
+  const { query } = (body as { query?: unknown }) ?? {};
 
   if (!query || typeof query !== "string" || query.trim().length === 0) {
     return NextResponse.json(
@@ -27,11 +27,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const session = await auth();
     const trimmed = query.trim();
-    const { posts, aiParsed } = await aiSearch(
-      trimmed,
-      typeof jwt === "string" ? jwt : undefined
-    );
+    const { posts, aiParsed } = await aiSearch(trimmed, session?.jwt);
     return NextResponse.json({
       posts,
       aiParsed,
