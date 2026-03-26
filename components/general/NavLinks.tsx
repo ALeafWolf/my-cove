@@ -2,6 +2,8 @@
 import { useSession } from "next-auth/react";
 import TransitionLink from "@/components/general/TransitionLink";
 import { navLinks, isPublicPath } from "@/utils/routes";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 
 export default function NavLinks() {
   const { data: session } = useSession();
@@ -24,6 +26,14 @@ export default function NavLinks() {
           {link.label}
         </TransitionLink>
       ))}
+      <TransitionLink
+        key="/search"
+        href="/search"
+        aria-label="Search"
+        className="block text-lg hover:underline focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none rounded"
+      >
+        <FontAwesomeIcon icon={faSearch} />
+      </TransitionLink>
     </nav>
   );
 }
