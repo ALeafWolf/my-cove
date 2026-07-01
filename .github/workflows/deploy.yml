@@ -1,0 +1,39 @@
+name: Deploy my-cove-fe
+
+# Auto-deploy the Next.js frontend to the DigitalOcean droplet (165.227.45.213) on push to master.
+# The GitHub runner SSHes in (port 22, left open by the firewall lockdown) and runs the same
+# steps you'd run by hand. Build runs under Node 20 (Next 16 requires it); pm2 launches the app
+# via the server's gitignored ecosystem.config.js (Node 20 interpreter), so a plain restart suffices.
+on:
+  push:
+    branches: [master]
+    paths-ignore:           # docs-only pushes don't need a redeploy
+      - '**.md'
+      - 'LICENSE'
+  workflow_dispatch:        # also lets you trigger a deploy manually from the Actions tab
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e   # fail the whole job if ANY command below errors (e.g. a broken build)
+            # nvm is NOT auto-loaded in a non-interactive SSH session — source it, then select
+            # Node 20 (Next 16 needs >=20; the box's default nvm Node is 16, used by the Strapi apps).
+            export NVM_DIR="$HOME/.nvm"
+            . "$NVM_DIR/nvm.sh"
+            nvm use 20
+
+            cd ~/projects/my-cove/frontend
+            git fetch origin
+            git reset --hard origin/master   # match the repo exactly (.env, ecosystem.config.js, .next, node_modules are gitignored — untouched)
+            npm install                      # committed lockfile exists; install is incremental
+            npm run build                    # next build (production)
+            # plain restart: ecosystem.config.js already pins the Node 20 interpreter + `next start`.
+            pm2 restart my-cove-fe
