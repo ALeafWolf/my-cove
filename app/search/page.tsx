@@ -125,7 +125,7 @@ async function getFilteredPosts(
       }),
       params: {
         ...(Object.keys(filters).length > 0 && { filters }),
-        ...(isAuthenticated && { publicationState: "preview" }),
+        ...(isAuthenticated && { status: "draft" }),
         populate: {
           thumbnail: { fields: "url" },
           categories: { fields: "name" },

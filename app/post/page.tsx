@@ -22,7 +22,7 @@ async function getPosts(session: Session | null) {
         headers: { Authorization: `Bearer ${session!.jwt}` },
       }),
       params: {
-        ...(isAuthenticated && { publicationState: "preview" }),
+        ...(isAuthenticated && { status: "draft" }),
         populate: {
           thumbnail: {
             fields: "url",
@@ -34,7 +34,7 @@ async function getPosts(session: Session | null) {
             fields: "name",
           },
           collection: {
-            fields: "name",
+            fields: "title",
             populate: {
               header_image: {
                 fields: "url",

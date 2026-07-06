@@ -11,8 +11,8 @@ interface Props {
   imageLoading?: "eager" | "lazy";
 }
 const MiniBlogBlock: React.FC<Props> = memo(({ blog, imageLoading }) => {
-  const user = blog?.attributes.user.data;
-  const media = blog?.attributes.media.data;
+  const user = blog?.user;
+  const media = blog?.media ?? [];
   return (
     <div className="flex flex-col gap-2 border p-4">
       <div className="flex justify-between">
@@ -21,34 +21,34 @@ const MiniBlogBlock: React.FC<Props> = memo(({ blog, imageLoading }) => {
             <div
               className="flex gap-2 h-8 w-8 rounded-full bg-cover bg-center"
               style={{
-                backgroundImage: `url(${user.attributes.thumbnail.data.attributes.url})`,
+                backgroundImage: `url(${user.thumbnail?.url})`,
               }}
               role="img"
-              aria-label={`Avatar of ${user.attributes.username}`}
+              aria-label={`Avatar of ${user.username}`}
             />
-            <h6>{user.attributes.username}</h6>
+            <h6>{user.username}</h6>
           </div>
         )}
-        <p>{formatDate(blog.attributes.createdAt)}</p>
+        <p>{formatDate(blog.createdAt)}</p>
       </div>
-      <h5 className="text-xl">{blog.attributes.title}</h5>
-      {blog.attributes.content && (
-        <p className="card-text">{blog.attributes.content}</p>
+      <h5 className="text-xl">{blog.title}</h5>
+      {blog.content && (
+        <p className="card-text">{blog.content}</p>
       )}
-      {media?.length === 1 ? (
+      {media.length === 1 ? (
         <Fancybox
           options={FANCYBOX_OPTIONS}
           className="w-full"
         >
           <a
             data-fancybox={`gallery-${blog.id}`}
-            href={media[0].attributes.url}
+            href={media[0].url}
             className="block w-full"
           >
             <Image
               className="object-contain w-full h-full"
-              src={media[0].attributes.url}
-              alt={blog.attributes.title}
+              src={media[0].url}
+              alt={blog.title}
               width={300}
               height={300}
               loading={imageLoading ?? "lazy"}
@@ -56,7 +56,7 @@ const MiniBlogBlock: React.FC<Props> = memo(({ blog, imageLoading }) => {
           </a>
         </Fancybox>
       ) : null}
-      {media?.length > 1 ? (
+      {media.length > 1 ? (
         <Fancybox
           options={FANCYBOX_OPTIONS}
           className="relative"
@@ -64,14 +64,14 @@ const MiniBlogBlock: React.FC<Props> = memo(({ blog, imageLoading }) => {
           {/* Visible first image with count overlay */}
           <a
             data-fancybox={`gallery-${blog.id}`}
-            href={media[0].attributes.url}
+            href={media[0].url}
             className="relative block"
-            aria-label={`Gallery for ${blog.attributes.title}, image 1 of ${media.length}`}
+            aria-label={`Gallery for ${blog.title}, image 1 of ${media.length}`}
           >
             <Image
               className="object-contain w-full h-auto"
-              src={media[0].attributes.url}
-              alt={blog.attributes.title}
+              src={media[0].url}
+              alt={blog.title}
               width={300}
               height={300}
               loading={imageLoading ?? "lazy"}
@@ -90,7 +90,7 @@ const MiniBlogBlock: React.FC<Props> = memo(({ blog, imageLoading }) => {
             <a
               data-fancybox={`gallery-${blog.id}`}
               key={m.id}
-              href={m.attributes.url}
+              href={m.url}
               className="hidden"
               aria-label={`View image ${idx + 2} of ${media.length}`}
             >

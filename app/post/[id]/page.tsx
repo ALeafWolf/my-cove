@@ -28,8 +28,8 @@ export const revalidate = 3600;
 export async function generateStaticParams() {
   try {
     const res = await get("/posts", { params: { fields: ["id"] } });
-    return (res.data || []).map((post: { id: number }) => ({
-      id: String(post.id),
+    return (res.data || []).map((post: { documentId: string }) => ({
+      id: post.documentId,
     }));
   } catch {
     return [];
@@ -42,7 +42,7 @@ const getPost = cache(async (id: string, jwt?: string) => {
     const res = await get(`/posts/${id}`, {
       ...(jwt && { headers: { Authorization: `Bearer ${jwt}` } }),
       params: {
-        ...(jwt && { publicationState: "preview" }),
+        ...(jwt && { status: "draft" }),
         populate: {
           thumbnail: {
             fields: "url",
@@ -81,8 +81,8 @@ export async function generateMetadata({ params }: PostDetailProps) {
   const post = await getPost(id, session?.jwt);
 
   return {
-    title: `${post?.attributes.title || "思绪"} | 眠洞`,
-    description: post?.attributes.summary || "",
+    title: `${post?.title || "思绪"} | 眠洞`,
+    description: post?.summary || "",
   };
 }
 
@@ -115,14 +115,14 @@ async function PostPageContent({
   }
 
   const headerImg = getPostThumbnailUrl(post);
-  const collection: Collection = post.attributes.collection?.data;
+  const collection: Collection | null = post.collection;
 
   let prevPost = null,
     nextPost = null;
   if (collection) {
     const postNavigation = getPrevAndNextPost(
-      collection.attributes.posts?.data || [],
-      post.id
+      collection.posts ?? [],
+      post.documentId
     );
     prevPost = postNavigation.prevPost;
     nextPost = postNavigation.nextPost;
@@ -137,7 +137,7 @@ async function PostPageContent({
               <Image
                 className="img-cover"
                 src={headerImg}
-                alt={post.attributes.title}
+                alt={post.title}
                 width={1000}
                 height={1000}
                 priority
@@ -145,16 +145,16 @@ async function PostPageContent({
             </div>
           ) : null}
           <h1 className="text-center text-3xl font-bold">
-            {post.attributes.title}
+            {post.title}
           </h1>
           <div className="flex justify-around text-sm text-gray-500">
             <p>
               Created:{" "}
-              {formatDate(post.attributes.createdAt)}
+              {formatDate(post.createdAt)}
             </p>
             <p>
               Updated:{" "}
-              {formatDate(post.attributes.updatedAt)}
+              {formatDate(post.updatedAt)}
             </p>
           </div>
         </div>
@@ -162,24 +162,24 @@ async function PostPageContent({
         {collection ? (
           <div className="w-full grid md:grid-cols-3 grid-cols-1 my-6 gap-4">
             <PostRedirectLink post={prevPost} label={faArrowLeft} />
-            <CollectionList collection={collection} currentPostId={post.id} />
+            <CollectionList collection={collection} currentPostId={post.documentId} />
             <PostRedirectLink post={nextPost} label={faArrowRight} />
           </div>
         ) : null}
 
-        <MarkdownContent content={post.attributes.content} />
+        <MarkdownContent content={post.content} />
 
         <div className="flex flex-col gap-3 py-4 mt-6">
           <div className="flex gap-2 items-center post-categories">
             <span className="min-w-max">类别:</span>
             <div className="flex gap-2 flex-wrap">
-              {(post.attributes.categories?.data || []).map((category: GroupData) => (
+              {(post.categories ?? []).map((category: GroupData) => (
                 <Link
-                  href={`/search?category=${category.attributes.name}`}
+                  href={`/search?category=${category.name}`}
                   className="block px-2 py-1 border"
                   key={category.id}
                 >
-                  {category.attributes.name}
+                  {category.name}
                 </Link>
               ))}
             </div>
@@ -187,13 +187,13 @@ async function PostPageContent({
           <div className="flex gap-2 items-center post-tags">
             <span className="min-w-max">标签:</span>
             <div className="flex gap-2 flex-wrap">
-              {(post.attributes.tags?.data || []).map((tag: GroupData) => (
+              {(post.tags ?? []).map((tag: GroupData) => (
                 <Link
-                  href={`/search?tag=${tag.attributes.name}`}
+                  href={`/search?tag=${tag.name}`}
                   className="block px-2 py-1 border"
                   key={tag.id}
                 >
-                  {tag.attributes.name}
+                  {tag.name}
                 </Link>
               ))}
             </div>

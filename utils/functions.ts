@@ -47,27 +47,15 @@ const post = async (endpoint: string, data: object = {}, params?: object) => {
 };
 
 const getPostThumbnailUrl = (post: Post) => {
-  let headerImg = "";
-  const { thumbnail, collection } = post.attributes;
-
-  if (thumbnail && thumbnail.data) {
-    headerImg = thumbnail.data.attributes.url;
-  } else if (
-    collection &&
-    collection.data &&
-    collection.data.attributes &&
-    collection.data.attributes.header_image &&
-    collection.data.attributes.header_image.data
-  ) {
-    headerImg = collection.data.attributes.header_image.data.attributes.url;
-  }
-  return headerImg;
+  return post.thumbnail?.url ?? post.collection?.header_image?.url ?? "";
 };
 
-const getPrevAndNextPost = (posts: Post[], currentPostId: number) => {
+const getPrevAndNextPost = (posts: Post[], currentPostId: string) => {
   let prevPost = null,
     nextPost = null;
-  const currentPostIndex = posts.findIndex((post) => post.id === currentPostId);
+  const currentPostIndex = posts.findIndex(
+    (post) => post.documentId === currentPostId
+  );
   if (currentPostIndex > 0) {
     prevPost = posts[currentPostIndex - 1];
   }

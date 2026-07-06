@@ -142,7 +142,7 @@ function buildStrapiFilters(parsed: AIParsedQuery): Record<string, unknown> {
 
 function countKeywordMatches(post: Post, keywords: string[]): number {
   const text =
-    `${post.attributes.title} ${post.attributes.summary ?? ""}`.toLowerCase();
+    `${post.title} ${post.summary ?? ""}`.toLowerCase();
   return keywords.reduce((n, kw) => n + (text.includes(kw) ? 1 : 0), 0);
 }
 
@@ -194,7 +194,7 @@ export async function aiSearch(
 
   const params = {
     ...(Object.keys(filters).length > 0 && { filters }),
-    ...(jwt && { publicationState: "preview" }),
+    ...(jwt && { status: "draft" }),
     populate: POPULATE,
     sort: [sort],
   };

@@ -8,7 +8,7 @@ import { Collection } from "@/utils/types";
 
 interface CollectionListProps {
   collection: Collection;
-  currentPostId: number;
+  currentPostId: string;
 }
 
 export default function CollectionList({
@@ -34,12 +34,12 @@ export default function CollectionList({
         type="button"
         aria-expanded={showList}
         aria-haspopup="listbox"
-        aria-label={`Collection: ${collection.attributes.title}`}
+        aria-label={`Collection: ${collection.title}`}
         className="inline-flex gap-2 border p-2 items-center justify-center bg-primary w-full hover:cursor-pointer focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:outline-none"
         onClick={() => setShowList(true)}
       >
         <FontAwesomeIcon icon={faList} size="lg" color="white" />
-        <span className="text-white">{collection.attributes.title}</span>
+        <span className="text-white">{collection.title}</span>
       </button>
 
       {showList && (
@@ -58,15 +58,19 @@ export default function CollectionList({
             className="absolute top-full left-0 right-0 bg-primary z-50 p-4 border"
           >
             <div className="flex flex-col gap-2">
-              {collection.attributes.posts.data.map((post) => (
-                <div key={post.id} role="option" aria-selected={post.id === currentPostId}>
+              {(collection.posts ?? []).map((post) => (
+                <div
+                  key={post.id}
+                  role="option"
+                  aria-selected={post.documentId === currentPostId}
+                >
                   <TransitionLink
-                    href={`/post/${post.id}`}
+                    href={`/post/${post.documentId}`}
                     className={`block p-2 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
-                      post.id === currentPostId ? "bg-gray-500" : ""
+                      post.documentId === currentPostId ? "bg-gray-500" : ""
                     }`}
                   >
-                    {post.attributes.title}
+                    {post.title}
                   </TransitionLink>
                 </div>
               ))}

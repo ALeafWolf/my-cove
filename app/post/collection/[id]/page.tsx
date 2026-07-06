@@ -19,8 +19,8 @@ export const revalidate = 3600;
 export async function generateStaticParams() {
   try {
     const res = await get("/post-collections", { params: { fields: ["id"] } });
-    return (res.data || []).map((c: { id: number }) => ({
-      id: String(c.id),
+    return (res.data || []).map((c: { documentId: string }) => ({
+      id: c.documentId,
     }));
   } catch {
     return [];
@@ -34,7 +34,7 @@ const getCollection = cache(async (id: string, jwt?: string) => {
     const res = await get(`/post-collections/${id}`, {
       ...(jwt && { headers: { Authorization: `Bearer ${jwt}` } }),
       params: {
-        ...(jwt && { publicationState: "preview" }),
+        ...(jwt && { status: "draft" }),
         populate: {
           header_image: {
             fields: "url",
@@ -70,8 +70,8 @@ export async function generateMetadata({ params }: CollectionDetailProps) {
   const collection = await getCollection(id, session?.jwt);
 
   return {
-    title: `${collection?.attributes.title || "文集"} | 眠洞`,
-    description: collection?.attributes.summary || "",
+    title: `${collection?.title || "文集"} | 眠洞`,
+    description: collection?.summary || "",
   };
 }
 
@@ -102,12 +102,12 @@ async function CollectionPageContent({
 
   // Defense-in-depth: middleware also blocks this, but guard here in case
   // the page is accessed via ISR cache or directly bypassing middleware.
-  if (!collection.attributes.publishedAt && !jwt) {
+  if (!collection.publishedAt && !jwt) {
     notFound();
   }
 
-  const headerImg = collection.attributes.header_image?.data?.attributes?.url;
-  const posts: Post[] = collection.attributes.posts?.data ?? [];
+  const headerImg = collection.header_image?.url;
+  const posts: Post[] = collection.posts ?? [];
 
   return (
     <div className="content-container mx-auto">
@@ -116,7 +116,7 @@ async function CollectionPageContent({
           <Image
             className="img-cover"
             src={headerImg}
-            alt={collection.attributes.title}
+            alt={collection.title}
             width={1200}
             height={675}
             priority
@@ -124,11 +124,11 @@ async function CollectionPageContent({
         </div>
       )}
       <h1 className="text-3xl font-bold text-center mb-2">
-        {collection.attributes.title}
+        {collection.title}
       </h1>
-      {collection.attributes.summary && (
+      {collection.summary && (
         <p className="text-center text-gray-400 mb-8">
-          {collection.attributes.summary}
+          {collection.summary}
         </p>
       )}
       {posts.length === 0 ? (

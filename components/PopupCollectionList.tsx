@@ -10,7 +10,7 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 interface Props {
   collection: Collection;
   setPopup: (bool: boolean) => void;
-  currentPostId: number;
+  currentPostId: string;
 }
 
 const Popup: FunctionComponent<Props> = ({
@@ -43,27 +43,36 @@ const Popup: FunctionComponent<Props> = ({
       >
         <FontAwesomeIcon icon={faXmark} size="xl" aria-hidden />
       </button>
-      <Image
-        className="w-full"
-        src={collection.attributes.header_image.data.attributes.url}
-        alt={collection.attributes.title}
-        width={400}
-        height={250}
-      />
+      {collection.header_image?.url && (
+        <Image
+          className="w-full"
+          src={collection.header_image.url}
+          alt={collection.title}
+          width={400}
+          height={250}
+        />
+      )}
       <h3 id="popup-collection-title" className="text-center">
-        {collection.attributes.title}
+        {collection.title}
       </h3>
       <ol>
-        {collection.attributes.posts.data.map((post: Post) => (
-          <li key={post.id} className={post.id === currentPostId ? "text-green-500 font-semibold" : ""}>
-            {post.id === currentPostId ? (
-              <p>{post.attributes.title}</p>
+        {(collection.posts ?? []).map((post: Post) => (
+          <li
+            key={post.id}
+            className={
+              post.documentId === currentPostId
+                ? "text-green-500 font-semibold"
+                : ""
+            }
+          >
+            {post.documentId === currentPostId ? (
+              <p>{post.title}</p>
             ) : (
               <Link
-                href={`/post/${post.id}`}
+                href={`/post/${post.documentId}`}
                 className="focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none rounded"
               >
-                {post.attributes.title}
+                {post.title}
               </Link>
             )}
           </li>

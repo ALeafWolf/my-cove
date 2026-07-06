@@ -1,101 +1,80 @@
+// Strapi 5 REST response envelopes.
+// The top-level { data, meta } wrapper is unchanged from v4, but per-entity
+// `attributes` and per-relation `{ data }` wrappers are gone — fields and
+// relations are now flattened directly onto the entity, alongside `documentId`.
+
+export type StrapiList<T> = {
+  data: T[];
+  meta: {
+    pagination?: {
+      page: number;
+      pageSize: number;
+      pageCount: number;
+      total: number;
+    };
+  };
+};
+
+export type StrapiSingle<T> = {
+  data: T;
+  meta: Record<string, unknown>;
+};
+
+export type StrapiImage = {
+  id?: number;
+  documentId?: string;
+  url: string;
+};
+
+export type GroupData = {
+  id: number;
+  documentId: string;
+  name: string;
+};
+
+export type User = {
+  id: number;
+  documentId: string;
+  username: string;
+  thumbnail: StrapiImage | null;
+};
+
 export type Post = {
   id: number;
-  attributes: PostAttributes;
-};
-export type Collection = {
-  id: number;
-  attributes: CollectionAttributes;
-};
-type PostAttributes = {
+  documentId: string;
   title: string;
   content: string;
   summary: string;
-  thumbnail: {
-    data: {
-      attributes: ImageAttributes;
-    };
-  };
-  categories: {
-    data: [
-      {
-        id: number;
-        attributes: GroupAttributes;
-      }
-    ];
-  };
-  tags: {
-    data: [
-      {
-        id: number;
-        attributes: GroupAttributes;
-      }
-    ];
-  };
-  collection: {
-    data: Collection;
-  };
+  thumbnail: StrapiImage | null;
+  categories: GroupData[];
+  tags: GroupData[];
+  collection: Collection | null;
   createdAt: string;
   updatedAt: string;
-  publishedAt?: string;
+  publishedAt?: string | null;
 };
-type ImageAttributes = {
-  url: string;
-};
-type GroupAttributes = {
-  name: string;
-};
-type CollectionAttributes = {
+
+export type Collection = {
+  id: number;
+  documentId: string;
   title: string;
   summary: string;
-  header_image: {
-    data: {
-      attributes: ImageAttributes;
-    };
-  };
-  publishedAt: string;
-  posts: {
-    data: [
-      {
-        id: number;
-        attributes: PostAttributes;
-      }
-    ];
-  };
+  header_image: StrapiImage | null;
+  posts: Post[];
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string | null;
 };
 
 export type MiniBlog = {
   id: number;
-  attributes: MiniBlogAttributes;
-};
-
-type MiniBlogAttributes = {
+  documentId: string;
   title: string;
   content: string;
-  media: {
-    data: [
-      {
-        id: number;
-        attributes: ImageAttributes;
-      }
-    ];
-  };
+  media: StrapiImage[];
   createdAt: string;
   updatedAt: string;
-  user: { data: User };
-};
-
-type User = {
-  id: number;
-  attributes: UserAttributes;
-};
-
-type UserAttributes = {
-  username: string;
-  thumbnail: {
-    data: {
-      attributes: ImageAttributes;
-    };
-  };
+  user: User;
 };
 
 export type InputType = "text" | "email" | "password" | "number" | "textarea";
@@ -110,8 +89,3 @@ export interface AuthSession {
     image?: string | null;
   };
 }
-
-export type GroupData = {
-  id: number;
-  attributes: GroupAttributes;
-};
